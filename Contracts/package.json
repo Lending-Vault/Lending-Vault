@@ -1,0 +1,27 @@
+{
+  "name": "liquidvault",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LiquidVault Hardhat project",
+  "license": "MIT",
+  "scripts": {
+    "clean": "hardhat clean",
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:sepolia": "hardhat run scripts/deploy.ts --network ethereum-sepolia",
+    "deploy:lisk": "hardhat run scripts/deploy.ts --network lisk-sepolia",
+    "interact:sepolia": "hardhat run scripts/interact.ts --network ethereum-sepolia",
+    "interact:lisk": "hardhat run scripts/interact.ts --network lisk-sepolia"
+  },
+  "devDependencies": {
+    "hardhat": "^2.19.0",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.30"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "5.0.0",
+    "dotenv": "^16.4.5"
+  }
+}
