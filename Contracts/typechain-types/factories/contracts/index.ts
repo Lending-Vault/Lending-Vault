@@ -3,4 +3,7 @@
 /* eslint-disable */
 export * as vaultManagerSol from "./VaultManager.sol";
 export * as mocks from "./mocks";
+export * as oracles from "./oracles";
+export * as tokens from "./tokens";
 export { PriceOracle__factory } from "./PriceOracle__factory";
+export { SavingsVault__factory } from "./SavingsVault__factory";

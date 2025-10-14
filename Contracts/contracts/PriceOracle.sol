@@ -3,66 +3,84 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-/**
- * @title PriceOracle
- * @notice Owner-managed price oracle storing manual prices for tokens.
- * @dev Prices are represented with 18 decimals of precision (1e18).
- *      All validations use if/revert with custom errors; no require() statements are used.
- */
+// Owner-managed price oracle with security controls
 contract PriceOracle is Ownable {
-    /**
-     * @dev token address => price (18 decimals)
-     */
+    // Token address => price (18 decimals)
     mapping(address => uint256) private prices;
 
-    /**
-     * @notice Emitted when a token price is updated.
-     * @param token The token address whose price was updated.
-     * @param price The new price with 18 decimals.
-     */
-    event PriceUpdated(address indexed token, uint256 price);
+    // Token address => last update timestamp
+    mapping(address => uint256) private lastPriceUpdate;
 
-    /**
-     * @notice Reverts when a non-owner attempts to perform an owner-only action.
-     */
+    // Constants
+    uint256 public constant MIN_PRICE = 1e12; // $0.000001
+    uint256 public constant MAX_PRICE = 1e30; // $1 trillion
+    uint256 public constant PRICE_UPDATE_DELAY = 1 hours;
+    uint256 public constant MAX_PRICE_CHANGE = 5000; // 50%
+    uint256 public constant BASIS_POINTS = 10000;
+
+    // Events
+    event PriceUpdated(address indexed token, uint256 oldPrice, uint256 newPrice);
+
+    // Errors
     error PriceOracle__OnlyOwner();
-
-    /**
-     * @notice Reverts when attempting to set a price to zero.
-     */
     error PriceOracle__PriceCannotBeZero();
-
-    /**
-     * @notice Reverts when requesting a price for a token that has not been set.
-     */
     error PriceOracle__PriceNotSet();
+    error PriceOracle__PriceOutOfBounds();
+    error PriceOracle__UpdateTooFrequent();
+    error PriceOracle__PriceChangeTooLarge();
 
-    /**
-     * @notice Initializes the contract setting the deployer as the owner.
-     * @dev Uses OpenZeppelin Ownable to set ownership to msg.sender via the OZ v5 pattern.
-     */
+    // Initialize contract setting deployer as owner
     constructor() Ownable(msg.sender) {}
 
-    /**
-     * @notice Sets the price for a token.
-     * @dev Only callable by the owner. The price must be non-zero and uses 18 decimals.
-     * @param token The token address to set the price for.
-     * @param price The price with 18 decimals (e.g., $2000 = 2000 * 1e18).
-     */
+    // Set price for token with security validations
     function setPrice(address token, uint256 price) external {
         if (msg.sender != owner()) revert PriceOracle__OnlyOwner();
         if (price == 0) revert PriceOracle__PriceCannotBeZero();
+        if (price < MIN_PRICE || price > MAX_PRICE) revert PriceOracle__PriceOutOfBounds();
 
+        // Check update frequency (except for first time)
+        if (lastPriceUpdate[token] != 0) {
+            if (block.timestamp < lastPriceUpdate[token] + PRICE_UPDATE_DELAY) {
+                revert PriceOracle__UpdateTooFrequent();
+            }
+
+            // Check price change limits (except for first time)
+            uint256 currentPrice = prices[token];
+            if (currentPrice > 0) {
+                uint256 priceChange;
+                if (price > currentPrice) {
+                    priceChange = ((price - currentPrice) * BASIS_POINTS) / currentPrice;
+                } else {
+                    priceChange = ((currentPrice - price) * BASIS_POINTS) / currentPrice;
+                }
+
+                if (priceChange > MAX_PRICE_CHANGE) {
+                    revert PriceOracle__PriceChangeTooLarge();
+                }
+            }
+        }
+
+        uint256 oldPrice = prices[token];
         prices[token] = price;
-        emit PriceUpdated(token, price);
+        lastPriceUpdate[token] = block.timestamp;
+
+        emit PriceUpdated(token, oldPrice, price);
     }
 
-    /**
-     * @notice Returns the price for a token.
-     * @param token The token address to query.
-     * @return price The price with 18 decimals.
-     * @dev Reverts if a price has not been set for the token.
-     */
+    // Emergency function to set price without restrictions
+    function emergencySetPrice(address token, uint256 price) external {
+        if (msg.sender != owner()) revert PriceOracle__OnlyOwner();
+        if (price == 0) revert PriceOracle__PriceCannotBeZero();
+        if (price < MIN_PRICE || price > MAX_PRICE) revert PriceOracle__PriceOutOfBounds();
+
+        uint256 oldPrice = prices[token];
+        prices[token] = price;
+        lastPriceUpdate[token] = block.timestamp;
+
+        emit PriceUpdated(token, oldPrice, price);
+    }
+
+    // Return price for token
     function getPrice(address token) external view returns (uint256 price) {
         price = prices[token];
         if (price == 0) revert PriceOracle__PriceNotSet();
