@@ -30,8 +30,13 @@ export interface VaultManagerInterface extends Interface {
       | "INTEREST_RATE"
       | "LIQUIDATION_PENALTY"
       | "LIQUIDATION_THRESHOLD"
+      | "LIQUIDATOR_REWARD"
       | "LTV_RATIO"
+      | "PROTOCOL_FEE"
+      | "acceptOwnership"
+      | "acceptedBorrowTokens"
       | "acceptedCollateral"
+      | "addBorrowToken"
       | "addCollateral"
       | "borrow"
       | "collateral"
@@ -39,11 +44,22 @@ export interface VaultManagerInterface extends Interface {
       | "deposit"
       | "getCollateralValue"
       | "getHealthFactor"
+      | "getOverallHealthFactor"
+      | "getTotalCollateralValue"
+      | "getTotalDebtValue"
       | "lastInterestUpdate"
       | "liquidate"
       | "owner"
+      | "pause"
+      | "paused"
+      | "pendingOwner"
       | "priceOracle"
+      | "protocolTreasury"
+      | "removeBorrowToken"
+      | "removeCollateral"
       | "repay"
+      | "transferOwnership"
+      | "unpause"
       | "withdraw"
   ): FunctionFragment;
 
@@ -53,7 +69,9 @@ export interface VaultManagerInterface extends Interface {
       | "CollateralDeposited"
       | "CollateralWithdrawn"
       | "Liquidated"
+      | "Paused"
       | "Repaid"
+      | "Unpaused"
   ): EventFragment;
 
   encodeFunctionData(
@@ -72,9 +90,29 @@ export interface VaultManagerInterface extends Interface {
     functionFragment: "LIQUIDATION_THRESHOLD",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "LIQUIDATOR_REWARD",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "LTV_RATIO", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "PROTOCOL_FEE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "acceptOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "acceptedBorrowTokens",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "acceptedCollateral",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addBorrowToken",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -106,22 +144,57 @@ export interface VaultManagerInterface extends Interface {
     values: [AddressLike, AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "lastInterestUpdate",
+    functionFragment: "getOverallHealthFactor",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getTotalCollateralValue",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getTotalDebtValue",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lastInterestUpdate",
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "liquidate",
     values: [AddressLike, AddressLike, AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(functionFragment: "pause", values?: undefined): string;
+  encodeFunctionData(functionFragment: "paused", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "pendingOwner",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "priceOracle",
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "protocolTreasury",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeBorrowToken",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeCollateral",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "repay",
     values: [AddressLike, BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "withdraw",
     values: [AddressLike, BigNumberish]
@@ -143,9 +216,29 @@ export interface VaultManagerInterface extends Interface {
     functionFragment: "LIQUIDATION_THRESHOLD",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIQUIDATOR_REWARD",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "LTV_RATIO", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "PROTOCOL_FEE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "acceptOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "acceptedBorrowTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "acceptedCollateral",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addBorrowToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -165,16 +258,51 @@ export interface VaultManagerInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getOverallHealthFactor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getTotalCollateralValue",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getTotalDebtValue",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "lastInterestUpdate",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "liquidate", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "pendingOwner",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "priceOracle",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "protocolTreasury",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeBorrowToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeCollateral",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "repay", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 }
 
@@ -267,6 +395,18 @@ export namespace LiquidatedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace PausedEvent {
+  export type InputTuple = [account: AddressLike];
+  export type OutputTuple = [account: string];
+  export interface OutputObject {
+    account: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace RepaidEvent {
   export type InputTuple = [
     user: AddressLike,
@@ -278,6 +418,18 @@ export namespace RepaidEvent {
     user: string;
     token: string;
     amount: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace UnpausedEvent {
+  export type InputTuple = [account: AddressLike];
+  export type OutputTuple = [account: string];
+  export interface OutputObject {
+    account: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -336,12 +488,30 @@ export interface VaultManager extends BaseContract {
 
   LIQUIDATION_THRESHOLD: TypedContractMethod<[], [bigint], "view">;
 
+  LIQUIDATOR_REWARD: TypedContractMethod<[], [bigint], "view">;
+
   LTV_RATIO: TypedContractMethod<[], [bigint], "view">;
+
+  PROTOCOL_FEE: TypedContractMethod<[], [bigint], "view">;
+
+  acceptOwnership: TypedContractMethod<[], [void], "nonpayable">;
+
+  acceptedBorrowTokens: TypedContractMethod<
+    [arg0: AddressLike],
+    [boolean],
+    "view"
+  >;
 
   acceptedCollateral: TypedContractMethod<
     [arg0: AddressLike],
     [boolean],
     "view"
+  >;
+
+  addBorrowToken: TypedContractMethod<
+    [token: AddressLike],
+    [void],
+    "nonpayable"
   >;
 
   addCollateral: TypedContractMethod<
@@ -390,8 +560,22 @@ export interface VaultManager extends BaseContract {
     "view"
   >;
 
-  lastInterestUpdate: TypedContractMethod<
+  getOverallHealthFactor: TypedContractMethod<
     [arg0: AddressLike],
+    [bigint],
+    "view"
+  >;
+
+  getTotalCollateralValue: TypedContractMethod<
+    [arg0: AddressLike],
+    [bigint],
+    "view"
+  >;
+
+  getTotalDebtValue: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+
+  lastInterestUpdate: TypedContractMethod<
+    [arg0: AddressLike, arg1: AddressLike],
     [bigint],
     "view"
   >;
@@ -404,13 +588,41 @@ export interface VaultManager extends BaseContract {
 
   owner: TypedContractMethod<[], [string], "view">;
 
+  pause: TypedContractMethod<[], [void], "nonpayable">;
+
+  paused: TypedContractMethod<[], [boolean], "view">;
+
+  pendingOwner: TypedContractMethod<[], [string], "view">;
+
   priceOracle: TypedContractMethod<[], [string], "view">;
+
+  protocolTreasury: TypedContractMethod<[], [string], "view">;
+
+  removeBorrowToken: TypedContractMethod<
+    [token: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  removeCollateral: TypedContractMethod<
+    [token: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
   repay: TypedContractMethod<
     [token: AddressLike, amount: BigNumberish],
     [void],
     "nonpayable"
   >;
+
+  transferOwnership: TypedContractMethod<
+    [newOwner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  unpause: TypedContractMethod<[], [void], "nonpayable">;
 
   withdraw: TypedContractMethod<
     [token: AddressLike, amount: BigNumberish],
@@ -435,11 +647,26 @@ export interface VaultManager extends BaseContract {
     nameOrSignature: "LIQUIDATION_THRESHOLD"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "LIQUIDATOR_REWARD"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "LTV_RATIO"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "PROTOCOL_FEE"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "acceptOwnership"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "acceptedBorrowTokens"
+  ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
+  getFunction(
     nameOrSignature: "acceptedCollateral"
   ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "addBorrowToken"
+  ): TypedContractMethod<[token: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "addCollateral"
   ): TypedContractMethod<[token: AddressLike], [void], "nonpayable">;
@@ -490,8 +717,21 @@ export interface VaultManager extends BaseContract {
     "view"
   >;
   getFunction(
-    nameOrSignature: "lastInterestUpdate"
+    nameOrSignature: "getOverallHealthFactor"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getTotalCollateralValue"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getTotalDebtValue"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "lastInterestUpdate"
+  ): TypedContractMethod<
+    [arg0: AddressLike, arg1: AddressLike],
+    [bigint],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "liquidate"
   ): TypedContractMethod<
@@ -503,8 +743,26 @@ export interface VaultManager extends BaseContract {
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "pause"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "paused"
+  ): TypedContractMethod<[], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "pendingOwner"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "priceOracle"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "protocolTreasury"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "removeBorrowToken"
+  ): TypedContractMethod<[token: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "removeCollateral"
+  ): TypedContractMethod<[token: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "repay"
   ): TypedContractMethod<
@@ -512,6 +770,12 @@ export interface VaultManager extends BaseContract {
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "transferOwnership"
+  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "unpause"
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "withdraw"
   ): TypedContractMethod<
@@ -549,11 +813,25 @@ export interface VaultManager extends BaseContract {
     LiquidatedEvent.OutputObject
   >;
   getEvent(
+    key: "Paused"
+  ): TypedContractEvent<
+    PausedEvent.InputTuple,
+    PausedEvent.OutputTuple,
+    PausedEvent.OutputObject
+  >;
+  getEvent(
     key: "Repaid"
   ): TypedContractEvent<
     RepaidEvent.InputTuple,
     RepaidEvent.OutputTuple,
     RepaidEvent.OutputObject
+  >;
+  getEvent(
+    key: "Unpaused"
+  ): TypedContractEvent<
+    UnpausedEvent.InputTuple,
+    UnpausedEvent.OutputTuple,
+    UnpausedEvent.OutputObject
   >;
 
   filters: {
@@ -601,6 +879,17 @@ export interface VaultManager extends BaseContract {
       LiquidatedEvent.OutputObject
     >;
 
+    "Paused(address)": TypedContractEvent<
+      PausedEvent.InputTuple,
+      PausedEvent.OutputTuple,
+      PausedEvent.OutputObject
+    >;
+    Paused: TypedContractEvent<
+      PausedEvent.InputTuple,
+      PausedEvent.OutputTuple,
+      PausedEvent.OutputObject
+    >;
+
     "Repaid(address,address,uint256)": TypedContractEvent<
       RepaidEvent.InputTuple,
       RepaidEvent.OutputTuple,
@@ -610,6 +899,17 @@ export interface VaultManager extends BaseContract {
       RepaidEvent.InputTuple,
       RepaidEvent.OutputTuple,
       RepaidEvent.OutputObject
+    >;
+
+    "Unpaused(address)": TypedContractEvent<
+      UnpausedEvent.InputTuple,
+      UnpausedEvent.OutputTuple,
+      UnpausedEvent.OutputObject
+    >;
+    Unpaused: TypedContractEvent<
+      UnpausedEvent.InputTuple,
+      UnpausedEvent.OutputTuple,
+      UnpausedEvent.OutputObject
     >;
   };
 }

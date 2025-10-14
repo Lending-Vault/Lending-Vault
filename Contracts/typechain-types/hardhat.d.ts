@@ -34,6 +34,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20__factory>;
     getContractFactory(
+      name: "ERC20Burnable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC20Burnable__factory>;
+    getContractFactory(
       name: "IERC20Metadata",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20Metadata__factory>;
@@ -54,6 +58,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Address__factory>;
     getContractFactory(
+      name: "Pausable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Pausable__factory>;
+    getContractFactory(
       name: "ReentrancyGuard",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ReentrancyGuard__factory>;
@@ -62,9 +70,37 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MockERC20__factory>;
     getContractFactory(
+      name: "AggregatorV3Interface",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.AggregatorV3Interface__factory>;
+    getContractFactory(
+      name: "ChainlinkOracle",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ChainlinkOracle__factory>;
+    getContractFactory(
+      name: "IUniversalOracle",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IUniversalOracle__factory>;
+    getContractFactory(
+      name: "OracleManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OracleManager__factory>;
+    getContractFactory(
+      name: "RedStoneOracle",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.RedStoneOracle__factory>;
+    getContractFactory(
       name: "PriceOracle",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.PriceOracle__factory>;
+    getContractFactory(
+      name: "SavingsVault",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.SavingsVault__factory>;
+    getContractFactory(
+      name: "GMFOTToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.GMFOTToken__factory>;
     getContractFactory(
       name: "IPriceOracle",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -100,6 +136,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ERC20>;
     getContractAt(
+      name: "ERC20Burnable",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20Burnable>;
+    getContractAt(
       name: "IERC20Metadata",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -125,6 +166,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Address>;
     getContractAt(
+      name: "Pausable",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Pausable>;
+    getContractAt(
       name: "ReentrancyGuard",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -135,10 +181,45 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.MockERC20>;
     getContractAt(
+      name: "AggregatorV3Interface",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AggregatorV3Interface>;
+    getContractAt(
+      name: "ChainlinkOracle",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ChainlinkOracle>;
+    getContractAt(
+      name: "IUniversalOracle",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniversalOracle>;
+    getContractAt(
+      name: "OracleManager",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OracleManager>;
+    getContractAt(
+      name: "RedStoneOracle",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.RedStoneOracle>;
+    getContractAt(
       name: "PriceOracle",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.PriceOracle>;
+    getContractAt(
+      name: "SavingsVault",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.SavingsVault>;
+    getContractAt(
+      name: "GMFOTToken",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.GMFOTToken>;
     getContractAt(
       name: "IPriceOracle",
       address: string | ethers.Addressable,
@@ -171,6 +252,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ERC20>;
     deployContract(
+      name: "ERC20Burnable",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ERC20Burnable>;
+    deployContract(
       name: "IERC20Metadata",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20Metadata>;
@@ -191,6 +276,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Address>;
     deployContract(
+      name: "Pausable",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Pausable>;
+    deployContract(
       name: "ReentrancyGuard",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ReentrancyGuard>;
@@ -199,9 +288,37 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MockERC20>;
     deployContract(
+      name: "AggregatorV3Interface",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.AggregatorV3Interface>;
+    deployContract(
+      name: "ChainlinkOracle",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ChainlinkOracle>;
+    deployContract(
+      name: "IUniversalOracle",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IUniversalOracle>;
+    deployContract(
+      name: "OracleManager",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.OracleManager>;
+    deployContract(
+      name: "RedStoneOracle",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.RedStoneOracle>;
+    deployContract(
       name: "PriceOracle",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.PriceOracle>;
+    deployContract(
+      name: "SavingsVault",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.SavingsVault>;
+    deployContract(
+      name: "GMFOTToken",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.GMFOTToken>;
     deployContract(
       name: "IPriceOracle",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -237,6 +354,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ERC20>;
     deployContract(
+      name: "ERC20Burnable",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ERC20Burnable>;
+    deployContract(
       name: "IERC20Metadata",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -262,6 +384,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Address>;
     deployContract(
+      name: "Pausable",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Pausable>;
+    deployContract(
       name: "ReentrancyGuard",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -272,10 +399,45 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MockERC20>;
     deployContract(
+      name: "AggregatorV3Interface",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.AggregatorV3Interface>;
+    deployContract(
+      name: "ChainlinkOracle",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ChainlinkOracle>;
+    deployContract(
+      name: "IUniversalOracle",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IUniversalOracle>;
+    deployContract(
+      name: "OracleManager",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.OracleManager>;
+    deployContract(
+      name: "RedStoneOracle",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.RedStoneOracle>;
+    deployContract(
       name: "PriceOracle",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.PriceOracle>;
+    deployContract(
+      name: "SavingsVault",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.SavingsVault>;
+    deployContract(
+      name: "GMFOTToken",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.GMFOTToken>;
     deployContract(
       name: "IPriceOracle",
       args: any[],
