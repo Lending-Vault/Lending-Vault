@@ -1,6 +1,6 @@
 // src/components/Modals/BorrowModal.tsx
 import React, { useState } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, AlertCircle } from 'lucide-react';
 import Modal from '../UI/Modal';
 import Input from '../UI/Input';
 import Button from '../UI/Button';
@@ -29,7 +29,6 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
   onBorrow,
 }) => {
   const [amount, setAmount] = useState('');
-  const [step, setStep] = useState<'input' | 'confirm'>('input');
   const [loading, setLoading] = useState(false);
 
   const borrowAmount = parseFloat(amount) || 0;
@@ -37,7 +36,6 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
   const newHealthFactor = newDebt > 0 ? (collateralValue / newDebt) * 100 : 0;
   const annualInterest = borrowAmount * (interestRate / 100);
 
-  const newHealthStatus = getHealthFactorStatus(newHealthFactor);
   const isWarning = newHealthFactor < 200 && newHealthFactor >= 150;
   const isDanger = newHealthFactor < 150;
 
@@ -52,7 +50,6 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
       onBorrow?.(borrowAmount);
       onClose();
       setAmount('');
-      setStep('input');
     }, 2000);
   };
 
@@ -87,7 +84,15 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
 
         {/* Interest Rate Info */}
         <div className="bg-primary-500/10 border border-primary-500/30 rounded-lg p-4">
-          <p className="text-sm font-semibold text-white mb-2">Fixed Interest Rate: {interestRate}% APR</p>
+          <div className="flex items-start justify-between mb-2">
+            <p className="text-sm font-semibold text-white">Fixed Interest Rate: {interestRate}% APR</p>
+            <div className="group relative">
+              <AlertCircle className="w-4 h-4 text-primary-400 cursor-help" />
+              <div className="hidden group-hover:block absolute z-10 right-0 w-64 p-3 bg-dark-card border border-dark-border rounded-lg shadow-lg text-xs text-dark-textMuted">
+                Interest accrues continuously on your borrowed amount. Repay anytime to stop interest accumulation. No early repayment penalty!
+              </div>
+            </div>
+          </div>
           {borrowAmount > 0 && (
             <div className="space-y-1 text-sm text-dark-textMuted">
               <p>Annual Interest: ${annualInterest.toFixed(2)}</p>

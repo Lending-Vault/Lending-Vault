@@ -23,10 +23,10 @@ const InfoBox: React.FC<InfoBoxProps> = ({
   };
 
   return (
-    <div className={clsx('rounded-lg border-2 p-4', variantStyles[variant])}>
-      <p className="text-sm text-dark-textMuted mb-1">{label}</p>
-      <p className="text-xl font-bold text-white">{value}</p>
-      {subValue && <p className="text-sm text-dark-textMuted mt-1">{subValue}</p>}
+    <div className={clsx('rounded-lg border-2 p-3 sm:p-4', variantStyles[variant])}>
+      <p className="text-xs sm:text-sm text-dark-textMuted mb-1">{label}</p>
+      <p className="text-lg sm:text-xl font-bold text-white">{value}</p>
+      {subValue && <p className="text-xs sm:text-sm text-dark-textMuted mt-1">{subValue}</p>}
     </div>
   );
 };

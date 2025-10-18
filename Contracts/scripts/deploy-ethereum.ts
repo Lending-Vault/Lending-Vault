@@ -2,21 +2,22 @@ import { ethers } from "hardhat";
 import { writeFileSync } from "fs";
 
 /**
- * Deployment script for Ethereum network using Chainlink Oracle
+ * Deployment script for Ethereum Sepolia Testnet using Chainlink Oracle
  */
 async function main() {
-  console.log(" Deploying LiquidVault to Ethereum...");
+  console.log("🚀 Deploying LiquidVault to Ethereum Sepolia...");
 
   const [deployer] = await ethers.getSigners();
   console.log("Deploying with account:", deployer.address);
   console.log(
     "Account balance:",
-    ethers.formatEther(await deployer.provider.getBalance(deployer.address))
+    ethers.formatEther(await deployer.provider.getBalance(deployer.address)),
+    "ETH"
   );
 
-  // Chainlink price feed addresses on Ethereum mainnet
-  const CHAINLINK_ETH_USD = "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419";
-  const CHAINLINK_USDT_USD = "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D";
+  // Chainlink price feed addresses on Ethereum Sepolia testnet
+  const CHAINLINK_ETH_USD = "0x694AA1769357215DE4FAC081bf1f309aDC325306"; // ETH/USD on Sepolia
+  const CHAINLINK_USDT_USD = "0xA2F78ab2355fe2f984D808B5CeE7FD0A93D5270E"; // USDT/USD on Sepolia
 
   // 1. Deploy Chainlink Oracle
   console.log("\n Deploying Chainlink Oracle...");
@@ -69,12 +70,16 @@ async function main() {
   const savingsAddress = await savingsVault.getAddress();
   console.log("Savings Vault deployed to:", savingsAddress);
 
-  // 7. Use real token addresses on Ethereum mainnet
-  const WETH_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
-  const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
-  const USDC_ADDRESS = "0xA0b86a33E6441b8C4C7C4b0b8C4C4C4C4C4C4C4C";
+  // 7. Define token addresses
+  const NATIVE_ETH = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"; // For native ETH collateral
 
-  console.log("Using real tokens:");
+  // Real token addresses on Ethereum Sepolia testnet
+  const WETH_ADDRESS = "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14"; // WETH on Sepolia
+  const USDT_ADDRESS = "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0"; // USDT on Sepolia
+  const USDC_ADDRESS = "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8"; // USDC on Sepolia
+
+  console.log("\n📍 Token Addresses:");
+  console.log("NATIVE_ETH (Primary Collateral):", NATIVE_ETH);
   console.log("WETH:", WETH_ADDRESS);
   console.log("USDT:", USDT_ADDRESS);
   console.log("USDC:", USDC_ADDRESS);
@@ -87,25 +92,38 @@ async function main() {
 
   // 7. Configure Chainlink Oracle
   console.log("\n Configuring Chainlink Oracle...");
+  await chainlinkOracle.setAggregator(NATIVE_ETH, CHAINLINK_ETH_USD); // ETH price feed
   await chainlinkOracle.setAggregator(WETH_ADDRESS, CHAINLINK_ETH_USD);
   await chainlinkOracle.setAggregator(USDT_ADDRESS, CHAINLINK_USDT_USD);
   console.log("Chainlink aggregators configured");
 
   // 8. Set fallback prices in manual oracle
   console.log("\n Setting fallback prices...");
+  await manualOracle.emergencySetPrice(NATIVE_ETH, ethers.parseEther("2000")); // $2000
   await manualOracle.emergencySetPrice(WETH_ADDRESS, ethers.parseEther("2000")); // $2000
   await manualOracle.emergencySetPrice(USDT_ADDRESS, ethers.parseEther("1")); // $1
+  await manualOracle.emergencySetPrice(gftAddress, ethers.parseEther("1")); // $1 - GMFOT
   console.log("Fallback prices set in manual oracle");
 
   // 9. Configure VaultManager
-  console.log("\n Configuring VaultManager...");
+  console.log("\n⚙️ Configuring VaultManager...");
+
+  // CRITICAL: Add NATIVE_ETH as primary collateral (for native Ethereum Sepolia ETH)
+  await vaultManager.addCollateral(NATIVE_ETH);
+  console.log("✅ Native ETH added as collateral:", NATIVE_ETH);
+
+  // Also add WETH as alternative collateral
   await vaultManager.addCollateral(WETH_ADDRESS);
+  console.log("✅ WETH added as collateral:", WETH_ADDRESS);
+
+  // Add borrow tokens
+  await vaultManager.addBorrowToken(gftAddress); // GMFOT token
   await vaultManager.addBorrowToken(USDT_ADDRESS);
-  console.log("VaultManager configured with real tokens");
+  console.log("✅ VaultManager configured with collateral and borrow tokens");
 
   // 10. Save deployment info
   const deployment = {
-    network: "ethereum",
+    network: "ethereum-sepolia",
     chainId: await deployer.provider.getNetwork().then((n) => n.chainId),
     deployer: deployer.address,
     contracts: {
@@ -113,8 +131,12 @@ async function main() {
       manualOracle: manualAddress,
       oracleManager: oracleManagerAddress,
       vaultManager: vaultAddress,
+      gftToken: gftAddress,
+      savingsVault: savingsAddress,
+      nativeEth: NATIVE_ETH,
       weth: WETH_ADDRESS,
       usdt: USDT_ADDRESS,
+      usdc: USDC_ADDRESS,
     },
     chainlinkFeeds: {
       ethUsd: CHAINLINK_ETH_USD,
@@ -124,25 +146,36 @@ async function main() {
   };
 
   writeFileSync(
-    "deployment-ethereum.json",
+    "deployment-ethereum-sepolia.json",
     JSON.stringify(deployment, null, 2)
   );
   console.log(
-    "\n Deployment completed! Configuration saved to deployment-ethereum.json"
+    "\n✅ Deployment completed! Configuration saved to deployment-ethereum-sepolia.json"
   );
 
-  console.log("\n Summary:");
-  console.log("- Chainlink Oracle (Primary):", chainlinkAddress);
-  console.log("- Manual Oracle (Fallback):", manualAddress);
-  console.log("- Oracle Manager:", oracleManagerAddress);
-  console.log("- VaultManager:", vaultAddress);
-  console.log("- WETH:", WETH_ADDRESS);
-  console.log("- USDT:", USDT_ADDRESS);
+  console.log("\n📋 Summary:");
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log("Network: Ethereum Sepolia Testnet");
+  console.log("Deployer:", deployer.address);
+  console.log("\n📦 Deployed Contracts:");
+  console.log("  - Chainlink Oracle (Primary):", chainlinkAddress);
+  console.log("  - Manual Oracle (Fallback):", manualAddress);
+  console.log("  - Oracle Manager:", oracleManagerAddress);
+  console.log("  - VaultManager:", vaultAddress);
+  console.log("  - GMFOT Token:", gftAddress);
+  console.log("  - Savings Vault:", savingsAddress);
+  console.log("\n💰 Token Addresses:");
+  console.log("  - NATIVE_ETH (Primary):", NATIVE_ETH);
+  console.log("  - WETH:", WETH_ADDRESS);
+  console.log("  - USDT:", USDT_ADDRESS);
+  console.log("  - USDC:", USDC_ADDRESS);
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-  console.log("\n Next Steps:");
-  console.log("1. Fund the vault with USDT liquidity");
-  console.log("2. Test the lending functionality");
-  console.log("3. Monitor Chainlink price feeds");
+  console.log("\n🎯 Next Steps:");
+  console.log("1. Update frontend config with deployed addresses");
+  console.log("2. Test native ETH deposits on Sepolia");
+  console.log("3. Verify contracts on Etherscan Sepolia");
+  console.log("4. Monitor Chainlink price feeds");
 }
 
 main()

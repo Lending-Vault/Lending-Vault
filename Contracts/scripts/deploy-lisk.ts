@@ -90,12 +90,18 @@ async function main() {
   await oracleManager.setManualOracle(manualAddress);
   console.log("Oracle Manager configured with RedStone as primary");
 
+  // Define NATIVE_ETH address (used throughout deployment)
+  const NATIVE_ETH = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
+
   // 9. Configure RedStone Oracle (example data feed IDs)
   console.log("\n Configuring RedStone Oracle...");
   // These are example RedStone data feed IDs - replace with actual ones
   const ethDataFeedId = ethers.keccak256(ethers.toUtf8Bytes("ETH"));
   const usdtDataFeedId = ethers.keccak256(ethers.toUtf8Bytes("USDT"));
   const usdcDataFeedId = ethers.keccak256(ethers.toUtf8Bytes("USDC"));
+
+  // Add data feed for NATIVE_ETH (Lisk Sepolia ETH)
+  await redstoneOracle.addTokenDataFeed(NATIVE_ETH, ethDataFeedId);
 
   await redstoneOracle.addTokenDataFeed(wethAddress, ethDataFeedId);
   await redstoneOracle.addTokenDataFeed(usdtAddress, usdtDataFeedId);
@@ -104,17 +110,32 @@ async function main() {
 
   // 10. Set initial prices in manual oracle (fallback)
   console.log("\n Setting initial prices...");
+
+  // IMPORTANT: Set price for NATIVE_ETH (used for Sepolia ETH collateral)
+  await manualOracle.emergencySetPrice(NATIVE_ETH, ethers.parseEther("2000")); // $2000
+
   await manualOracle.emergencySetPrice(wethAddress, ethers.parseEther("2000")); // $2000
   await manualOracle.emergencySetPrice(usdtAddress, ethers.parseEther("1")); // $1
   await manualOracle.emergencySetPrice(usdcAddress, ethers.parseEther("1")); // $1
+  await manualOracle.emergencySetPrice(gftAddress, ethers.parseEther("1")); // $1 - GMFOT price
   console.log("Initial prices set in manual oracle");
 
   // 11. Configure VaultManager
-  console.log("\n Configuring VaultManager...");
+  console.log("\n⚙️ Configuring VaultManager...");
+
+  // CRITICAL: Add NATIVE_ETH as primary collateral (for native Lisk Sepolia ETH)
+  await vaultManager.addCollateral(NATIVE_ETH);
+  console.log("✅ Native ETH added as collateral:", NATIVE_ETH);
+
+  // Add mock WETH as alternative collateral (for testing)
   await vaultManager.addCollateral(wethAddress);
+  console.log("✅ Mock WETH added as collateral:", wethAddress);
+
+  // Add borrow tokens
+  await vaultManager.addBorrowToken(gftAddress); // GMFOT token
   await vaultManager.addBorrowToken(usdtAddress);
   await vaultManager.addBorrowToken(usdcAddress);
-  console.log("VaultManager configured with collateral and borrow tokens");
+  console.log("✅ VaultManager configured with collateral and borrow tokens");
 
   // 12. Configure Savings Vault
   console.log("\n💰 Configuring Savings Vault...");

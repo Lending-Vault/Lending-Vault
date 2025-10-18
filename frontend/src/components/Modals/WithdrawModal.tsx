@@ -5,7 +5,6 @@ import Modal from '../UI/Modal';
 import Input from '../UI/Input';
 import Button from '../UI/Button';
 import InfoBox from '../UI/InfoBox';
-import { getHealthFactorStatus } from '../../utils/mockData';
 
 interface WithdrawModalProps {
   isOpen: boolean;
@@ -36,11 +35,10 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
   const withdrawAmount = parseFloat(amount) || 0;
   const withdrawValue = withdrawAmount * tokenPrice;
   const newCollateral = currentCollateral - withdrawValue;
-  const newCollateralAmount = currentCollateralAmount - withdrawAmount;
-  
+
   // Calculate new health factor
   const newHealthFactor = currentDebt > 0 ? (newCollateral / currentDebt) * 100 : 0;
-  
+
   const hasDebt = currentDebt > 0;
   const canWithdraw = !hasDebt || newHealthFactor >= 150;
   const isWarning = hasDebt && newHealthFactor < 200 && newHealthFactor >= 150;
