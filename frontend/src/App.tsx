@@ -6,6 +6,7 @@ import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
 import Dashboard from './pages/Dashboard';
 import Savings from './pages/Savings';
+import Landing from './pages/Landing';
 import { config } from './config/wagmi';
 
 // Import debug helpers for development (only in dev mode)
@@ -23,7 +24,8 @@ function App() {
         <RainbowKitProvider>
           <Router>
             <Routes>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<Landing />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/savings" element={<Savings />} />
             </Routes>
           </Router>

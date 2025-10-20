@@ -22,6 +22,7 @@ import {
   useWithdrawETH,
   NATIVE_ETH
 } from '../hooks';
+import { performBorrowPreCheck, formatPreCheckMessage } from '../utils/borrowPreCheck';
 import { useMultiNetworkVault } from '../hooks/useMultiNetworkVault';
 import { useMultiNetworkTransactionHistory } from '../hooks/useMultiNetworkTransactionHistory';
 import { useTokenPrice } from '../hooks/useOracle';
@@ -161,6 +162,7 @@ const Dashboard: React.FC = () => {
     try {
       if (!isConnected) {
         console.error('Wallet not connected. Connect your wallet before borrowing.');
+        alert('Error: Please connect your wallet first.');
         return;
       }
       if (!contractAddresses?.VaultManager || !contractAddresses?.GMFOTToken) {
@@ -169,10 +171,11 @@ const Dashboard: React.FC = () => {
           vaultManager: contractAddresses?.VaultManager as string,
           gmfotToken: contractAddresses?.GMFOTToken as string,
         });
+        alert('Error: Contract addresses not found for current network. Please try switching networks.');
         return;
       }
 
-      // Optional: ensure wallet network matches the active selection
+      // Ensure wallet network matches the active selection
       const expectedChainId = selectedChain === 'lisk' ? lisk.chainId : ethereum.chainId;
       if (chainId !== expectedChainId) {
         console.error('Network mismatch: please switch your wallet to the active network before borrowing', {
@@ -180,46 +183,70 @@ const Dashboard: React.FC = () => {
           expectedChainId,
           walletChainId: chainId,
         });
+        alert(`Error: Network mismatch. Please switch your wallet to ${selectedChain === 'lisk' ? 'Lisk Sepolia' : 'Ethereum Sepolia'}.`);
         return;
       }
 
-      // Optional: preflight acceptance and liquidity checks
-      if (typeof isGMFOTAcceptedRaw === 'boolean' && isGMFOTAcceptedRaw === false) {
-        console.error('GMFOT is not an accepted borrow token on this network.');
+      // Perform comprehensive pre-check
+      console.log('Performing borrow pre-check...');
+      const preCheckResult = await performBorrowPreCheck(
+        amount.toString(),
+        NATIVE_ETH as `0x${string}`,
+        contractAddresses.GMFOTToken as `0x${string}`
+      );
+
+      if (!preCheckResult.canBorrow) {
+        const errorMessage = formatPreCheckMessage(preCheckResult);
+        alert(errorMessage);
         return;
       }
-      const requiredWei = parseUnits(String(amount), 18);
-      if (typeof gmfotLiquidityRaw === 'bigint') {
-        const availableLiq: bigint = gmfotLiquidityRaw;
-        if (requiredWei > availableLiq) {
-          console.error('Insufficient GMFOT liquidity in VaultManager', {
-            required: requiredWei.toString(),
-            available: availableLiq.toString(),
-          });
-          return;
-        }
-      }
 
-      console.log('Borrow preflight:', {
-        chainId,
-        vaultManager: contractAddresses.VaultManager as string,
-        collateralToken: NATIVE_ETH as unknown as string,
-        borrowToken: contractAddresses.GMFOTToken as string,
-        amount,
-      });
+      // Show pre-check success with information
+      const successMessage = formatPreCheckMessage(preCheckResult);
+      console.log('Pre-check passed:', successMessage);
 
-      await borrow(
+      // Show user feedback
+      alert(`Submitting borrow transaction for ${amount} GMFOT. Please confirm in MetaMask and wait for confirmation...`);
+
+      const txHash = await borrow(
         NATIVE_ETH as `0x${string}`,
         contractAddresses.GMFOTToken as `0x${string}`,
         amount.toString(),
         18
       );
+
+      console.log('Borrow transaction submitted:', txHash);
+      alert(`Borrow transaction submitted! Hash: ${txHash}. Waiting for confirmation...`);
+
     } catch (error: any) {
       console.error('Borrow error:', {
         message: error?.message,
         code: error?.code,
         details: error,
       });
+
+      // Provide user-friendly error messages
+      let errorMessage = 'Transaction failed. ';
+      
+      if (error?.message?.includes('User rejected')) {
+        errorMessage = 'Transaction cancelled by user.';
+      } else if (error?.message?.includes('VaultManager__ExceedsBorrowLimit')) {
+        errorMessage = 'Borrow amount exceeds limit. Please try borrowing less or deposit more collateral.';
+      } else if (error?.message?.includes('VaultManager__InsufficientLiquidity')) {
+        errorMessage = 'Insufficient liquidity in the vault. Please try again later.';
+      } else if (error?.message?.includes('VaultManager__HealthFactorTooLow')) {
+        errorMessage = 'Health factor too low. Please deposit more collateral or borrow less.';
+      } else if (error?.message?.includes('VaultManager__TokenNotAccepted')) {
+        errorMessage = 'Token not accepted. Please check token configuration.';
+      } else if (error?.message?.includes('oracle') || error?.message?.includes('Oracle')) {
+        errorMessage = 'Oracle error: Unable to fetch token prices. Please try again later.';
+      } else if (error?.message?.includes('insufficient funds')) {
+        errorMessage = 'Insufficient funds for gas. Please ensure you have enough ETH for gas fees.';
+      } else {
+        errorMessage += `Error: ${error?.message || 'Unknown error occurred'}`;
+      }
+
+      alert(errorMessage);
     }
   };
 
@@ -273,7 +300,7 @@ const Dashboard: React.FC = () => {
                   Connect Your Wallet
                 </h2>
                 <p className="text-dark-textMuted mb-4">
-                  Connect your wallet to start depositing collateral and borrowing GMFOT stablecoin.
+                  Connect your wallet to start depositing collateral and borrow USDT to earn GMFOT stablecoin.
                 </p>
                 <div className="bg-dark-bg/50 rounded-lg p-4 text-left space-y-2 text-sm text-dark-textMuted">
                   <p>✓ <span className="text-white font-semibold">No token approvals</span> - deposit native ETH directly</p>
@@ -325,7 +352,7 @@ const Dashboard: React.FC = () => {
                       <span className="font-semibold text-lisk-400">1. Deposit Collateral:</span> Deposit native Sepolia ETH directly from your wallet (no token approval needed!)
                     </p>
                     <p>
-                      <span className="font-semibold text-lisk-400">2. Borrow GMFOT:</span> Borrow up to 50% of your collateral value in GMFOT stablecoin at 8% APR
+                      <span className="font-semibold text-lisk-400">2. Borrow USDT:</span> Borrow up to 50% of your collateral value in GMFOT stablecoin at 8% APR
                     </p>
                     <p>
                       <span className="font-semibold text-lisk-400">3. Maintain Health:</span> Keep your Health Factor above 150% to avoid liquidation
@@ -377,7 +404,7 @@ const Dashboard: React.FC = () => {
                   <p className="text-xs text-dark-textMuted mb-1">Available to Borrow</p>
                   <p className="text-xl font-bold text-lisk-400">{formatCurrency(maxBorrowAmount)}</p>
                   <div className="hidden group-hover:block absolute z-10 bottom-full mb-2 w-48 p-2 bg-dark-card border border-dark-border rounded-lg shadow-lg text-xs text-dark-textMuted">
-                    Maximum GMFOT you can borrow (50% of collateral value - current debt)
+                    Maximum USDT you can borrow (50% of collateral value - current debt)
                   </div>
                 </div>
               </div>

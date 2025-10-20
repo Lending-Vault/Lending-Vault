@@ -191,7 +191,7 @@ export function useDepositCollateral() {
 }
 
 /**
- * Hook to borrow tokens (matches Solidity function signature) with verbose diagnostics
+ * Hook to borrow tokens (matches Solidity function signature) with enhanced error handling
  */
 export function useBorrow() {
   const { chainId } = useAccount();
@@ -240,7 +240,27 @@ export function useBorrow() {
         cause: e?.cause,
         details: e,
       });
-      throw e;
+      
+      // Enhanced error handling with more descriptive messages
+      if (e?.message?.includes('User rejected')) {
+        throw new Error('Transaction cancelled by user');
+      } else if (e?.message?.includes('VaultManager__ExceedsBorrowLimit')) {
+        throw new Error('Borrow amount exceeds limit. Try borrowing less or deposit more collateral.');
+      } else if (e?.message?.includes('VaultManager__InsufficientLiquidity')) {
+        throw new Error('Insufficient liquidity in the vault. Try again later.');
+      } else if (e?.message?.includes('VaultManager__HealthFactorTooLow')) {
+        throw new Error('Health factor too low. Deposit more collateral or borrow less.');
+      } else if (e?.message?.includes('VaultManager__TokenNotAccepted')) {
+        throw new Error('Token not accepted by the vault');
+      } else if (e?.message?.includes('execution reverted')) {
+        // Try to extract revert reason if available
+        const revertReason = e?.data?.message || e?.message || 'Unknown revert reason';
+        throw new Error(`Transaction failed: ${revertReason}`);
+      } else if (e?.message?.includes('insufficient funds')) {
+        throw new Error('Insufficient funds for gas. Ensure you have enough ETH for gas fees.');
+      } else {
+        throw new Error(`Transaction failed: ${e?.message || 'Unknown error'}`);
+      }
     }
   };
 

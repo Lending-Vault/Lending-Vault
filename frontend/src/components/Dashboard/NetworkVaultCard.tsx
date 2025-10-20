@@ -167,12 +167,7 @@ const NetworkVaultCard: React.FC<NetworkVaultCardProps> = ({
         </>
       )}
 
-      {/* Error State */}
-      {data.error && (
-        <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-          <p className="text-sm text-red-400">Error loading vault data</p>
-        </div>
-      )}
+     
     </div>
   );
 };
