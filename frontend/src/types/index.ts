@@ -19,6 +19,8 @@ export interface Transaction {
   txHash: string;
   fullTxHash?: string; // Full transaction hash for block explorer
   blockNumber?: bigint; // Block number for sorting
+  network?: 'Lisk Sepolia' | 'Ethereum Sepolia'; // Network name
+  chainId?: number; // Chain ID (4202 for Lisk, 11155111 for Ethereum)
 }
 
-export type ModalType = 'deposit' | 'borrow' | 'repay' | 'withdraw' | 'stake' | 'unstake' | null;
+export type ModalType = 'deposit' | 'borrow' | 'repay' | 'withdraw' | 'stake'| 'Liquidation' | 'unstake' | null;

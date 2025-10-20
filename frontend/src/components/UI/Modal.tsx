@@ -38,14 +38,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
       />
 
       {/* Modal Content */}
-      <div className="relative bg-dark-card border-t sm:border border-dark-border rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-lg max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-slide-up">
+      <div className="relative bg-dark-card border-t sm:border border-lisk-500/20 rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-lg max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-slide-up lisk-glow-effect">
 
         {/* Header */}
-        <div className="sticky top-0 bg-dark-card border-b border-dark-border px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-10">
-          <h2 className="text-xl sm:text-2xl font-bold text-white">{title}</h2>
+        <div className="sticky top-0 bg-dark-card border-b border-lisk-500/20 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-10">
+          <h2 className="text-xl sm:text-2xl font-bold gradient-lisk-strong">{title}</h2>
           <button
             onClick={onClose}
-            className="text-dark-textMuted hover:text-white transition-colors p-1 hover:bg-dark-border rounded-lg"
+            className="text-dark-textMuted hover:text-lisk-400 transition-colors p-1 hover:bg-lisk-500/10 rounded-lg border border-transparent hover:border-lisk-500/20"
           >
             <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>

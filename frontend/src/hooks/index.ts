@@ -65,3 +65,9 @@ export {
   useTransactionHistory,
   getBlockExplorerUrl,
 } from './useTransactionHistory';
+
+// Multi-Network Transaction History Hooks
+export {
+  useMultiNetworkTransactionHistory,
+  getBlockExplorerUrl as getMultiNetworkBlockExplorerUrl,
+} from './useMultiNetworkTransactionHistory';

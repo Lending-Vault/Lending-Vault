@@ -1,10 +1,17 @@
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useBalance } from 'wagmi';
-import { parseUnits, formatUnits, parseEther } from 'viem';
-import { getContractAddresses } from '../config/contracts';
-import { VaultManagerABI } from '../abis';
+import {
+  useAccount,
+  useReadContract,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+  useBalance,
+} from "wagmi";
+import { parseUnits, formatUnits, parseEther } from "viem";
+import { getContractAddresses } from "../config/contracts";
+import { VaultManagerABI } from "../abis";
 
 // Special address representing native ETH in the VaultManager contract
-export const NATIVE_ETH = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' as const;
+export const NATIVE_ETH =
+  "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" as const;
 
 /**
  * Hook to get user's native ETH balance
@@ -34,7 +41,7 @@ export function useUserCollateral(token: `0x${string}`) {
   const { data, isLoading, error, refetch } = useReadContract({
     address: contractAddresses?.VaultManager as `0x${string}` | undefined,
     abi: VaultManagerABI,
-    functionName: 'collateral',
+    functionName: "collateral",
     args: address && token ? [address, token] : undefined,
     query: {
       enabled: !!address && !!token && !!contractAddresses,
@@ -59,7 +66,7 @@ export function useUserDebt(token: `0x${string}`) {
   const { data, isLoading, error, refetch } = useReadContract({
     address: contractAddresses?.VaultManager as `0x${string}` | undefined,
     abi: VaultManagerABI,
-    functionName: 'debt',
+    functionName: "debt",
     args: address && token ? [address, token] : undefined,
     query: {
       enabled: !!address && !!token && !!contractAddresses,
@@ -77,17 +84,24 @@ export function useUserDebt(token: `0x${string}`) {
 /**
  * Hook to read user's health factor for specific collateral and debt tokens
  */
-export function useHealthFactor(collateralToken: `0x${string}`, debtToken: `0x${string}`) {
+export function useHealthFactor(
+  collateralToken: `0x${string}`,
+  debtToken: `0x${string}`
+) {
   const { address, chainId } = useAccount();
   const contractAddresses = getContractAddresses(chainId);
 
   const { data, isLoading, error, refetch } = useReadContract({
     address: contractAddresses?.VaultManager as `0x${string}` | undefined,
     abi: VaultManagerABI,
-    functionName: 'getHealthFactor',
-    args: address && collateralToken && debtToken ? [address, collateralToken, debtToken] : undefined,
+    functionName: "getHealthFactor",
+    args:
+      address && collateralToken && debtToken
+        ? [address, collateralToken, debtToken]
+        : undefined,
     query: {
-      enabled: !!address && !!collateralToken && !!debtToken && !!contractAddresses,
+      enabled:
+        !!address && !!collateralToken && !!debtToken && !!contractAddresses,
     },
   });
 
@@ -107,13 +121,12 @@ export function useDepositETH() {
   const contractAddresses = getContractAddresses(chainId);
   const { writeContract, data: hash, isPending, error } = useWriteContract();
 
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
-    hash,
-  });
+  const { isLoading: isConfirming, isSuccess } =
+    useWaitForTransactionReceipt({ hash });
 
   const depositETH = async (amount: string) => {
     if (!contractAddresses?.VaultManager) {
-      throw new Error('VaultManager contract address not found for current network');
+      throw new Error("VaultManager contract address not found for current network");
     }
 
     const amountInWei = parseEther(amount);
@@ -121,7 +134,7 @@ export function useDepositETH() {
     return writeContract({
       address: contractAddresses.VaultManager as `0x${string}`,
       abi: VaultManagerABI,
-      functionName: 'depositETH',
+      functionName: "depositETH",
       args: [],
       value: amountInWei,
     });
@@ -145,13 +158,16 @@ export function useDepositCollateral() {
   const contractAddresses = getContractAddresses(chainId);
   const { writeContract, data: hash, isPending, error } = useWriteContract();
 
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
-    hash,
-  });
+  const { isLoading: isConfirming, isSuccess } =
+    useWaitForTransactionReceipt({ hash });
 
-  const deposit = async (tokenAddress: `0x${string}`, amount: string, decimals: number = 18) => {
+  const deposit = async (
+    tokenAddress: `0x${string}`,
+    amount: string,
+    decimals: number = 18
+  ) => {
     if (!contractAddresses?.VaultManager) {
-      throw new Error('VaultManager contract address not found for current network');
+      throw new Error("VaultManager contract address not found for current network");
     }
 
     const amountInWei = parseUnits(amount, decimals);
@@ -159,7 +175,7 @@ export function useDepositCollateral() {
     return writeContract({
       address: contractAddresses.VaultManager as `0x${string}`,
       abi: VaultManagerABI,
-      functionName: 'deposit',
+      functionName: "deposit",
       args: [tokenAddress, amountInWei],
     });
   };
@@ -175,30 +191,77 @@ export function useDepositCollateral() {
 }
 
 /**
- * Hook to borrow tokens
+ * Hook to borrow tokens (matches Solidity function signature) with enhanced error handling
  */
 export function useBorrow() {
   const { chainId } = useAccount();
   const contractAddresses = getContractAddresses(chainId);
   const { writeContract, data: hash, isPending, error } = useWriteContract();
 
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
-    hash,
-  });
+  const { isLoading: isConfirming, isSuccess } =
+    useWaitForTransactionReceipt({ hash });
 
-  const borrow = async (tokenAddress: `0x${string}`, amount: string, decimals: number = 18) => {
+  const borrow = async (
+    collateralToken: `0x${string}`,
+    borrowToken: `0x${string}`,
+    amount: string,
+    decimals: number = 18
+  ) => {
     if (!contractAddresses?.VaultManager) {
-      throw new Error('VaultManager contract address not found for current network');
+      throw new Error("VaultManager contract address not found for current network");
     }
 
     const amountInWei = parseUnits(amount, decimals);
 
-    return writeContract({
-      address: contractAddresses.VaultManager as `0x${string}`,
-      abi: VaultManagerABI,
-      functionName: 'borrow',
-      args: [tokenAddress, amountInWei],
+    // Pre-flight diagnostics
+    console.log('useBorrow preflight:', {
+      chainId,
+      vaultManager: contractAddresses.VaultManager as string,
+      collateralToken: collateralToken as unknown as string,
+      borrowToken: borrowToken as unknown as string,
+      amount,
+      decimals,
+      amountInWei: amountInWei.toString(),
     });
+
+    try {
+      const submitResult = await writeContract({
+        address: contractAddresses.VaultManager as `0x${string}`,
+        abi: VaultManagerABI,
+        functionName: "borrow",
+        args: [collateralToken, borrowToken, amountInWei],
+      });
+      console.log('useBorrow submitted:', submitResult);
+      return submitResult;
+    } catch (e: any) {
+      console.error('useBorrow writeContract error:', {
+        message: e?.message,
+        code: e?.code,
+        cause: e?.cause,
+        details: e,
+      });
+      
+      // Enhanced error handling with more descriptive messages
+      if (e?.message?.includes('User rejected')) {
+        throw new Error('Transaction cancelled by user');
+      } else if (e?.message?.includes('VaultManager__ExceedsBorrowLimit')) {
+        throw new Error('Borrow amount exceeds limit. Try borrowing less or deposit more collateral.');
+      } else if (e?.message?.includes('VaultManager__InsufficientLiquidity')) {
+        throw new Error('Insufficient liquidity in the vault. Try again later.');
+      } else if (e?.message?.includes('VaultManager__HealthFactorTooLow')) {
+        throw new Error('Health factor too low. Deposit more collateral or borrow less.');
+      } else if (e?.message?.includes('VaultManager__TokenNotAccepted')) {
+        throw new Error('Token not accepted by the vault');
+      } else if (e?.message?.includes('execution reverted')) {
+        // Try to extract revert reason if available
+        const revertReason = e?.data?.message || e?.message || 'Unknown revert reason';
+        throw new Error(`Transaction failed: ${revertReason}`);
+      } else if (e?.message?.includes('insufficient funds')) {
+        throw new Error('Insufficient funds for gas. Ensure you have enough ETH for gas fees.');
+      } else {
+        throw new Error(`Transaction failed: ${e?.message || 'Unknown error'}`);
+      }
+    }
   };
 
   return {
@@ -219,13 +282,16 @@ export function useRepay() {
   const contractAddresses = getContractAddresses(chainId);
   const { writeContract, data: hash, isPending, error } = useWriteContract();
 
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
-    hash,
-  });
+  const { isLoading: isConfirming, isSuccess } =
+    useWaitForTransactionReceipt({ hash });
 
-  const repay = async (tokenAddress: `0x${string}`, amount: string, decimals: number = 18) => {
+  const repay = async (
+    tokenAddress: `0x${string}`,
+    amount: string,
+    decimals: number = 18
+  ) => {
     if (!contractAddresses?.VaultManager) {
-      throw new Error('VaultManager contract address not found for current network');
+      throw new Error("VaultManager contract address not found for current network");
     }
 
     const amountInWei = parseUnits(amount, decimals);
@@ -233,7 +299,7 @@ export function useRepay() {
     return writeContract({
       address: contractAddresses.VaultManager as `0x${string}`,
       abi: VaultManagerABI,
-      functionName: 'repay',
+      functionName: "repay",
       args: [tokenAddress, amountInWei],
     });
   };
@@ -256,13 +322,12 @@ export function useWithdrawETH() {
   const contractAddresses = getContractAddresses(chainId);
   const { writeContract, data: hash, isPending, error } = useWriteContract();
 
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
-    hash,
-  });
+  const { isLoading: isConfirming, isSuccess } =
+    useWaitForTransactionReceipt({ hash });
 
   const withdrawETH = async (amount: string) => {
     if (!contractAddresses?.VaultManager) {
-      throw new Error('VaultManager contract address not found for current network');
+      throw new Error("VaultManager contract address not found for current network");
     }
 
     const amountInWei = parseEther(amount);
@@ -270,7 +335,7 @@ export function useWithdrawETH() {
     return writeContract({
       address: contractAddresses.VaultManager as `0x${string}`,
       abi: VaultManagerABI,
-      functionName: 'withdrawETH',
+      functionName: "withdrawETH",
       args: [amountInWei],
     });
   };
@@ -293,13 +358,16 @@ export function useWithdrawCollateral() {
   const contractAddresses = getContractAddresses(chainId);
   const { writeContract, data: hash, isPending, error } = useWriteContract();
 
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
-    hash,
-  });
+  const { isLoading: isConfirming, isSuccess } =
+    useWaitForTransactionReceipt({ hash });
 
-  const withdraw = async (tokenAddress: `0x${string}`, amount: string, decimals: number = 18) => {
+  const withdraw = async (
+    tokenAddress: `0x${string}`,
+    amount: string,
+    decimals: number = 18
+  ) => {
     if (!contractAddresses?.VaultManager) {
-      throw new Error('VaultManager contract address not found for current network');
+      throw new Error("VaultManager contract address not found for current network");
     }
 
     const amountInWei = parseUnits(amount, decimals);
@@ -307,7 +375,7 @@ export function useWithdrawCollateral() {
     return writeContract({
       address: contractAddresses.VaultManager as `0x${string}`,
       abi: VaultManagerABI,
-      functionName: 'withdraw',
+      functionName: "withdraw",
       args: [tokenAddress, amountInWei],
     });
   };
@@ -325,14 +393,17 @@ export function useWithdrawCollateral() {
 /**
  * Hook to get collateral value in USD
  */
-export function useCollateralValue(tokenAddress?: `0x${string}`, amount?: bigint) {
+export function useCollateralValue(
+  tokenAddress?: `0x${string}`,
+  amount?: bigint
+) {
   const { chainId } = useAccount();
   const contractAddresses = getContractAddresses(chainId);
 
   const { data, isLoading, error } = useReadContract({
     address: contractAddresses?.VaultManager as `0x${string}` | undefined,
     abi: VaultManagerABI,
-    functionName: 'getCollateralValue',
+    functionName: "getCollateralValue",
     args: tokenAddress && amount ? [tokenAddress, amount] : undefined,
     query: {
       enabled: !!tokenAddress && !!amount && !!contractAddresses,
@@ -353,8 +424,10 @@ export function formatVaultData(vault: any) {
   if (!vault) return null;
 
   return {
-    collateralAmount: vault.collateralAmount ? formatUnits(vault.collateralAmount, 18) : '0',
-    debtAmount: vault.debtAmount ? formatUnits(vault.debtAmount, 18) : '0',
+    collateralAmount: vault.collateralAmount
+      ? formatUnits(vault.collateralAmount, 18)
+      : "0",
+    debtAmount: vault.debtAmount ? formatUnits(vault.debtAmount, 18) : "0",
     collateralToken: vault.collateralToken,
     borrowToken: vault.borrowToken,
   };

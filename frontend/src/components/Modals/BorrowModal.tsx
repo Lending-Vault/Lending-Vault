@@ -5,7 +5,9 @@ import Modal from '../UI/Modal';
 import Input from '../UI/Input';
 import Button from '../UI/Button';
 import InfoBox from '../UI/InfoBox';
+import PriceDisplay from '../UI/PriceDisplay';
 import { getHealthFactorStatus } from '../../utils/mockData';
+import { diagnoseBorrowIssues, formatDiagnosticReport } from '../../utils/diagnoseBorrowIssue';
 
 interface BorrowModalProps {
   isOpen: boolean;
@@ -30,6 +32,7 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
 }) => {
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
+  const [diagnosticLoading, setDiagnosticLoading] = useState(false);
 
   const borrowAmount = parseFloat(amount) || 0;
   const newDebt = currentDebt + borrowAmount;
@@ -53,8 +56,22 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
     }, 2000);
   };
 
+  const handleDiagnostics = async () => {
+    setDiagnosticLoading(true);
+    try {
+      const results = await diagnoseBorrowIssues();
+      const report = formatDiagnosticReport(results);
+      alert(report);
+    } catch (error) {
+      console.error('Diagnostic error:', error);
+      alert('Failed to run diagnostics. Please check console for details.');
+    } finally {
+      setDiagnosticLoading(false);
+    }
+  };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Borrow Stablecoins">
+    <Modal isOpen={isOpen} onClose={onClose} title="Borrow GMFOT">
       <div className="space-y-6">
         
         {/* Amount Input */}
@@ -66,7 +83,7 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
           type="number"
           maxButton
           onMaxClick={handleMaxClick}
-          suffix="USDT"
+          suffix="GMFOT"
           error={borrowAmount > maxBorrowAmount ? `Maximum borrow: $${maxBorrowAmount.toLocaleString()}` : undefined}
         />
 
@@ -81,6 +98,9 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
             <span className="text-sm font-semibold text-primary-400">${maxBorrowAmount.toLocaleString()}</span>
           </div>
         </div>
+
+        {/* Price Display */}
+        <PriceDisplay className="mb-4" />
 
         {/* Interest Rate Info */}
         <div className="bg-primary-500/10 border border-primary-500/30 rounded-lg p-4">
@@ -148,7 +168,7 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
         <div className="bg-dark-bg border border-dark-border rounded-lg p-4">
           <div className="flex justify-between items-center">
             <span className="text-sm text-dark-textMuted">Estimated Gas Fee</span>
-            <span className="text-sm font-semibold text-white">~$8.00</span>
+            <span className="text-sm font-semibold text-white">~$0.04</span>
           </div>
         </div>
 
@@ -165,9 +185,20 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
             {loading ? 'Borrowing...' : `Borrow ${amount || '0'} USDT`}
           </Button>
 
-          <Button variant="ghost" fullWidth onClick={onClose}>
-            Cancel
-          </Button>
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              variant="secondary"
+              fullWidth
+              onClick={handleDiagnostics}
+              loading={diagnosticLoading}
+            >
+              {diagnosticLoading ? 'Running...' : 'Run Diagnostics'}
+            </Button>
+
+            <Button variant="ghost" fullWidth onClick={onClose}>
+              Cancel
+            </Button>
+          </div>
         </div>
       </div>
     </Modal>
