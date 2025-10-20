@@ -39,6 +39,16 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions, i
     }
   };
 
+  const getNetworkBadgeColor = (network?: string) => {
+    if (network?.includes('Lisk')) {
+      return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
+    }
+    if (network?.includes('Ethereum')) {
+      return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+    }
+    return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+  };
+
   return (
     <Card>
       <h2 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">Transaction History</h2>
@@ -48,6 +58,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions, i
         <table className="w-full">
           <thead>
             <tr className="border-b border-dark-border">
+              <th className="text-left py-3 px-4 text-sm font-semibold text-dark-textMuted">Network</th>
               <th className="text-left py-3 px-4 text-sm font-semibold text-dark-textMuted">Type</th>
               <th className="text-left py-3 px-4 text-sm font-semibold text-dark-textMuted">Amount</th>
               <th className="text-left py-3 px-4 text-sm font-semibold text-dark-textMuted">Date</th>
@@ -61,6 +72,13 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions, i
                 key={tx.id}
                 className="border-b border-dark-border/50 hover:bg-dark-cardHover transition-colors"
               >
+                <td className="py-4 px-4">
+                  {tx.network && (
+                    <span className={`inline-flex px-2 py-1 rounded-md border text-xs font-medium ${getNetworkBadgeColor(tx.network)}`}>
+                      {tx.network}
+                    </span>
+                  )}
+                </td>
                 <td className="py-4 px-4">
                   <span className="text-white font-medium">{tx.type}</span>
                 </td>
@@ -78,7 +96,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions, i
                 </td>
                 <td className="py-4 px-4">
                   <a
-                    href={getBlockExplorerUrl(chainId, (tx as any).fullTxHash || tx.txHash)}
+                    href={getBlockExplorerUrl(tx.chainId || chainId, (tx as any).fullTxHash || tx.txHash)}
                     className="text-primary-400 hover:text-primary-300 flex items-center gap-1 text-sm font-mono"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -104,6 +122,11 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions, i
               <div>
                 <p className="text-white font-semibold mb-1">{tx.type}</p>
                 <p className="text-dark-textMuted text-xs">{tx.date}</p>
+                {tx.network && (
+                  <span className={`inline-flex px-2 py-1 mt-2 rounded-md border text-xs font-medium ${getNetworkBadgeColor(tx.network)}`}>
+                    {tx.network}
+                  </span>
+                )}
               </div>
               <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusColor(tx.status)}`}>
                 {getStatusIcon(tx.status)}
@@ -117,7 +140,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions, i
                 <p className="text-white font-medium">{tx.amount}</p>
               </div>
               <a
-                href={getBlockExplorerUrl(chainId, (tx as any).fullTxHash || tx.txHash)}
+                href={getBlockExplorerUrl(tx.chainId || chainId, (tx as any).fullTxHash || tx.txHash)}
                 className="text-primary-400 hover:text-primary-300 flex items-center gap-1 text-xs font-mono"
                 target="_blank"
                 rel="noopener noreferrer"

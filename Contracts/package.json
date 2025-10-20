@@ -14,14 +14,15 @@
     "interact:lisk": "hardhat run scripts/interact.ts --network lisk-sepolia"
   },
   "devDependencies": {
-    "hardhat": "^2.19.0",
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/node": "^20.11.30",
+    "hardhat": "^2.19.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3",
-    "@types/node": "^20.11.30"
+    "typescript": "^5.3.3"
   },
   "dependencies": {
     "@openzeppelin/contracts": "5.0.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "ethers": "^6.15.0"
   }
 }

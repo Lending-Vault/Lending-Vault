@@ -54,7 +54,7 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Borrow Stablecoins">
+    <Modal isOpen={isOpen} onClose={onClose} title="Borrow GMFOT">
       <div className="space-y-6">
         
         {/* Amount Input */}
@@ -66,7 +66,7 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
           type="number"
           maxButton
           onMaxClick={handleMaxClick}
-          suffix="USDT"
+          suffix="GMFOT"
           error={borrowAmount > maxBorrowAmount ? `Maximum borrow: $${maxBorrowAmount.toLocaleString()}` : undefined}
         />
 
@@ -148,7 +148,7 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
         <div className="bg-dark-bg border border-dark-border rounded-lg p-4">
           <div className="flex justify-between items-center">
             <span className="text-sm text-dark-textMuted">Estimated Gas Fee</span>
-            <span className="text-sm font-semibold text-white">~$8.00</span>
+            <span className="text-sm font-semibold text-white">~$0.04</span>
           </div>
         </div>
 
@@ -162,7 +162,7 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
             loading={loading}
             disabled={borrowAmount <= 0 || borrowAmount > maxBorrowAmount || isDanger}
           >
-            {loading ? 'Borrowing...' : `Borrow ${amount || '0'} USDT`}
+            {loading ? 'Borrowing...' : `Borrow ${amount || '0'} GMFOT`}
           </Button>
 
           <Button variant="ghost" fullWidth onClick={onClose}>

@@ -1,11 +1,11 @@
 // src/pages/Dashboard.tsx
 import React, { useState, useEffect } from 'react';
 import { Wallet, TrendingUp } from 'lucide-react';
-import { useAccount } from 'wagmi';
-import { formatUnits } from 'viem';
+import { useAccount, useReadContract } from 'wagmi';
+import { formatUnits, parseUnits } from 'viem';
 import Header from '../components/Layout/Header';
 import BottomNav from '../components/Layout/BottomNav';
-import VaultCard from '../components/Dashboard/VaultCard';
+import NetworkVaultCard from '../components/Dashboard/NetworkVaultCard';
 import GMFOTCard from '../components/Dashboard/GMFOTCard';
 import TransactionHistory from '../components/Dashboard/TransactionHistory';
 import DepositModal from '../components/Modals/DepositModal';
@@ -16,18 +16,17 @@ import Card from '../components/UI/Card';
 import { formatCurrency } from '../utils/mockData';
 import type { ModalType } from '../types';
 import {
-  useUserCollateral,
-  useUserDebt,
-  useHealthFactor,
   useDepositETH,
   useBorrow,
   useRepay,
   useWithdrawETH,
-  useTransactionHistory,
   NATIVE_ETH
 } from '../hooks';
+import { useMultiNetworkVault } from '../hooks/useMultiNetworkVault';
+import { useMultiNetworkTransactionHistory } from '../hooks/useMultiNetworkTransactionHistory';
 import { useTokenPrice } from '../hooks/useOracle';
 import { getContractAddresses } from '../config/contracts';
+import { IERC20ABI, VaultManagerABI } from '../abis';
 
 const Dashboard: React.FC = () => {
   const [selectedChain, setSelectedChain] = useState<'ethereum' | 'lisk'>('lisk');
@@ -37,13 +36,35 @@ const Dashboard: React.FC = () => {
   const { isConnected, chainId } = useAccount();
   const contractAddresses = getContractAddresses(chainId);
 
-  // Contract hooks - using NATIVE_ETH for collateral
-  const { collateral, refetch: refetchCollateral } = useUserCollateral(NATIVE_ETH as `0x${string}`);
-  const { debt, refetch: refetchDebt } = useUserDebt(contractAddresses?.GMFOTToken as `0x${string}`);
-  const { healthFactor, refetch: refetchHealthFactor } = useHealthFactor(
-    NATIVE_ETH as `0x${string}`,
-    contractAddresses?.GMFOTToken as `0x${string}`
-  );
+  // Preflight reads: check GMFOT acceptance and VaultManager liquidity
+  const { data: isGMFOTAcceptedRaw } = useReadContract({
+    address: contractAddresses?.VaultManager as `0x${string}` | undefined,
+    abi: VaultManagerABI,
+    functionName: 'acceptedBorrowTokens',
+    args: contractAddresses?.GMFOTToken ? [contractAddresses.GMFOTToken as `0x${string}`] : undefined,
+    query: {
+      enabled: !!contractAddresses?.VaultManager && !!contractAddresses?.GMFOTToken,
+    },
+  });
+
+  const { data: gmfotLiquidityRaw } = useReadContract({
+    address: contractAddresses?.GMFOTToken as `0x${string}` | undefined,
+    abi: IERC20ABI,
+    functionName: 'balanceOf',
+    args: contractAddresses?.VaultManager ? [contractAddresses.VaultManager as `0x${string}`] : undefined,
+    query: {
+      enabled: !!contractAddresses?.GMFOTToken && !!contractAddresses?.VaultManager,
+    },
+  });
+
+  // Type-narrow raw reads
+  const isGMFOTAccepted = typeof isGMFOTAcceptedRaw === 'boolean' ? isGMFOTAcceptedRaw : undefined;
+  const gmfotLiquidity = typeof gmfotLiquidityRaw === 'bigint' ? gmfotLiquidityRaw : undefined;
+
+  // Multi-network vault data hooks
+  const { lisk, ethereum, refetchAll } = useMultiNetworkVault();
+
+  // Transaction actions
   const { depositETH, isSuccess: isDepositSuccess } = useDepositETH();
   const { borrow, isSuccess: isBorrowSuccess } = useBorrow();
   const { repay, isSuccess: isRepaySuccess } = useRepay();
@@ -52,63 +73,48 @@ const Dashboard: React.FC = () => {
   // Get ETH price from oracle
   const { price: ethPrice } = useTokenPrice(NATIVE_ETH as `0x${string}`);
 
-  // Get real transaction history
-  const { transactions, isLoading: txLoading } = useTransactionHistory();
+  // Get transaction history from BOTH networks
+  const { transactions, isLoading: txLoading, refetch: refetchTransactions } = useMultiNetworkTransactionHistory();
 
   // Refetch vault data when transactions succeed
   useEffect(() => {
     if (isDepositSuccess || isBorrowSuccess || isRepaySuccess || isWithdrawSuccess) {
-      refetchCollateral();
-      refetchDebt();
-      refetchHealthFactor();
+      refetchAll();
+      refetchTransactions();
     }
-  }, [isDepositSuccess, isBorrowSuccess, isRepaySuccess, isWithdrawSuccess, refetchCollateral, refetchDebt, refetchHealthFactor]);
-
-  // Refetch vault data when network changes
-  useEffect(() => {
-    if (chainId && isConnected) {
-      console.log('🔄 Network changed to:', chainId, 'Refetching vault data...');
-      refetchCollateral();
-      refetchDebt();
-      refetchHealthFactor();
-    }
-  }, [chainId, isConnected, refetchCollateral, refetchDebt, refetchHealthFactor]);
-
-  // Parse collateral and debt data
-  const collateralAmount = collateral && typeof collateral === 'bigint'
-    ? formatUnits(collateral, 18) : '0';
-  const debtAmount = debt && typeof debt === 'bigint'
-    ? formatUnits(debt, 18) : '0';
+  }, [isDepositSuccess, isBorrowSuccess, isRepaySuccess, isWithdrawSuccess, refetchAll, refetchTransactions]);
 
   // Calculate USD values for ETH (main collateral)
   const ethPriceNum = ethPrice && typeof ethPrice === 'bigint'
     ? parseFloat(formatUnits(ethPrice, 8)) : 2000;
-  const collateralBalance = parseFloat(collateralAmount) * ethPriceNum;
-  const debtBalance = parseFloat(debtAmount); // Assuming GMFOT is $1
-  const collateralPriceNum = ethPriceNum; // For modal compatibility
 
-  // Health factor is returned as basis points (10000 = 100%)
-  // Convert to percentage: divide by 100 (10000 basis points = 100%)
-  // Special case: type(uint256).max means infinite (no debt)
+  // Calculate total collateral and debt across all networks
+  const totalCollateralETH = parseFloat(lisk.collateral) + parseFloat(ethereum.collateral);
+  const totalDebtGMFOT = parseFloat(lisk.debt) + parseFloat(ethereum.debt);
+  const collateralBalance = totalCollateralETH * ethPriceNum;
+  const debtBalance = totalDebtGMFOT; // Assuming GMFOT is $1
+
+  // Calculate average health factor (weighted by collateral)
+  const liskWeight = parseFloat(lisk.collateral) / totalCollateralETH || 0;
+  const ethWeight = parseFloat(ethereum.collateral) / totalCollateralETH || 0;
+  const liskHF = parseFloat(lisk.healthFactor);
+  const ethHF = parseFloat(ethereum.healthFactor);
+
   const healthFactorValue = (() => {
-    if (!healthFactor || typeof healthFactor !== 'bigint') return 0;
-
-    // Check if it's the max uint256 value (returned when debt is 0)
-    const maxUint256 = BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
-    if (healthFactor >= maxUint256 / BigInt(1000)) {
-      // If health factor is very large (approaching max uint256), treat as infinite/healthy
-      return 999; // Display as 999% (effectively infinite)
+    if (totalDebtGMFOT === 0) return 999; // Infinite health if no debt
+    if (liskWeight > 0 && ethWeight > 0) {
+      // Weighted average if both networks have collateral
+      return (liskHF * liskWeight + ethHF * ethWeight) * 100;
+    } else if (liskWeight > 0) {
+      return liskHF * 100;
+    } else if (ethWeight > 0) {
+      return ethHF * 100;
     }
-
-    return Number(healthFactor) / 100; // Divide by 100 to get percentage (e.g., 15000 -> 150%)
+    return 0;
   })();
 
-  // Calculate max borrow amount (50% of collateral value)
-  const maxBorrowAmount = collateralBalance * 0.5;
-
-  // Mock data for test tokens (these would come from separate vault calls in production)
-  const ethSepoliaCollateral = collateralBalance * 0.6; // 60% of total in ETH Sepolia
-  const liskSepoliaCollateral = collateralBalance * 0.4; // 40% of total in Lisk Sepolia
+  // Calculate max borrow amount (50% of collateral value - current debt)
+  const maxBorrowAmount = Math.max(0, collateralBalance * 0.5 - debtBalance);
 
   const borrowDate = new Date('2025-10-10');
 
@@ -153,18 +159,67 @@ const Dashboard: React.FC = () => {
 
   const handleBorrow = async (amount: number) => {
     try {
-      if (!contractAddresses?.GMFOTToken) {
-        console.error('GMFOTToken address not found for current network');
+      if (!isConnected) {
+        console.error('Wallet not connected. Connect your wallet before borrowing.');
         return;
       }
-      console.log('Borrow:', amount);
+      if (!contractAddresses?.VaultManager || !contractAddresses?.GMFOTToken) {
+        console.error('Missing contract addresses for current network', {
+          chainId,
+          vaultManager: contractAddresses?.VaultManager as string,
+          gmfotToken: contractAddresses?.GMFOTToken as string,
+        });
+        return;
+      }
+
+      // Optional: ensure wallet network matches the active selection
+      const expectedChainId = selectedChain === 'lisk' ? lisk.chainId : ethereum.chainId;
+      if (chainId !== expectedChainId) {
+        console.error('Network mismatch: please switch your wallet to the active network before borrowing', {
+          selectedChain,
+          expectedChainId,
+          walletChainId: chainId,
+        });
+        return;
+      }
+
+      // Optional: preflight acceptance and liquidity checks
+      if (typeof isGMFOTAcceptedRaw === 'boolean' && isGMFOTAcceptedRaw === false) {
+        console.error('GMFOT is not an accepted borrow token on this network.');
+        return;
+      }
+      const requiredWei = parseUnits(String(amount), 18);
+      if (typeof gmfotLiquidityRaw === 'bigint') {
+        const availableLiq: bigint = gmfotLiquidityRaw;
+        if (requiredWei > availableLiq) {
+          console.error('Insufficient GMFOT liquidity in VaultManager', {
+            required: requiredWei.toString(),
+            available: availableLiq.toString(),
+          });
+          return;
+        }
+      }
+
+      console.log('Borrow preflight:', {
+        chainId,
+        vaultManager: contractAddresses.VaultManager as string,
+        collateralToken: NATIVE_ETH as unknown as string,
+        borrowToken: contractAddresses.GMFOTToken as string,
+        amount,
+      });
+
       await borrow(
+        NATIVE_ETH as `0x${string}`,
         contractAddresses.GMFOTToken as `0x${string}`,
         amount.toString(),
         18
       );
-    } catch (error) {
-      console.error('Borrow error:', error);
+    } catch (error: any) {
+      console.error('Borrow error:', {
+        message: error?.message,
+        code: error?.code,
+        details: error,
+      });
     }
   };
 
@@ -195,7 +250,7 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-bg via-primary-950/20 to-dark-bg pb-20 md:pb-0">
+    <div className="min-h-screen bg-gradient-to-br from-dark-bg via-lisk-950/20 to-dark-bg pb-20 md:pb-0">
 
       {/* Header */}
       <Header
@@ -204,15 +259,15 @@ const Dashboard: React.FC = () => {
       />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
 
         {/* If wallet NOT connected - Show Connect Prompt */}
         {!isConnected ? (
           <div className="flex items-center justify-center min-h-[60vh]">
-            <Card className="max-w-md w-full text-center" padding="lg">
+            <Card className="max-w-md w-full text-center lisk-glow-effect" padding="lg">
               <div className="mb-6">
-                <div className="w-20 h-20 bg-primary-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Wallet className="w-10 h-10 text-primary-400" />
+                <div className="w-20 h-20 bg-gradient-to-br from-lisk-500/20 to-lisk-600/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-lisk-500/30">
+                  <Wallet className="w-10 h-10 text-lisk-400" />
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-2">
                   Connect Your Wallet
@@ -250,16 +305,16 @@ const Dashboard: React.FC = () => {
           /* If wallet IS connected - Show Dashboard */
           <>
             {/* Page Title */}
-            <div className="mb-6">
-              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Your Vaults</h1>
-              <p className="text-dark-textMuted">Deposit native Sepolia ETH as collateral and borrow GMFOT stablecoin across multiple networks</p>
+            <div className="mb-4 sm:mb-6">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2 mobile-text-base">Your Vaults</h1>
+              <p className="text-sm sm:text-base text-dark-textMuted mobile-text-sm">Deposit native Sepolia ETH as collateral and borrow GMFOT stablecoin across multiple networks</p>
             </div>
 
             {/* How It Works - Info Banner */}
-            <Card padding="lg" className="mb-6 bg-gradient-to-r from-primary-500/10 to-primary-600/5 border-primary-500/30">
+            <Card padding="lg" className="mb-6 bg-gradient-to-r from-lisk-500/10 to-lisk-600/5 border-lisk-500/30 lisk-glow-effect">
               <div className="flex items-start gap-4">
-                <div className="bg-primary-500/20 p-3 rounded-lg">
-                  <svg className="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-lisk-500/20 p-3 rounded-lg border border-lisk-500/30">
+                  <svg className="w-6 h-6 text-lisk-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
@@ -267,20 +322,20 @@ const Dashboard: React.FC = () => {
                   <h3 className="text-lg font-bold text-white mb-2">How Lending Vault Works</h3>
                   <div className="space-y-2 text-sm text-dark-textMuted">
                     <p>
-                      <span className="font-semibold text-primary-400">1. Deposit Collateral:</span> Deposit native Sepolia ETH directly from your wallet (no token approval needed!)
+                      <span className="font-semibold text-lisk-400">1. Deposit Collateral:</span> Deposit native Sepolia ETH directly from your wallet (no token approval needed!)
                     </p>
                     <p>
-                      <span className="font-semibold text-primary-400">2. Borrow GMFOT:</span> Borrow up to 50% of your collateral value in GMFOT stablecoin at 8% APR
+                      <span className="font-semibold text-lisk-400">2. Borrow GMFOT:</span> Borrow up to 50% of your collateral value in GMFOT stablecoin at 8% APR
                     </p>
                     <p>
-                      <span className="font-semibold text-primary-400">3. Maintain Health:</span> Keep your Health Factor above 150% to avoid liquidation
+                      <span className="font-semibold text-lisk-400">3. Maintain Health:</span> Keep your Health Factor above 150% to avoid liquidation
                     </p>
                     <p>
-                      <span className="font-semibold text-primary-400">4. Repay & Withdraw:</span> Repay your loan anytime and withdraw your collateral
+                      <span className="font-semibold text-lisk-400">4. Repay & Withdraw:</span> Repay your loan anytime and withdraw your collateral
                     </p>
                   </div>
-                  <div className="mt-4 p-3 bg-dark-bg/50 rounded-lg border border-primary-500/20">
-                    <p className="text-xs text-primary-300">
+                  <div className="mt-4 p-3 bg-dark-bg/50 rounded-lg border border-lisk-500/20">
+                    <p className="text-xs text-lisk-300">
                       <span className="font-semibold">💡 Pro Tip:</span> Start by depositing a small amount of ETH to test the system. Your collateral is secured on-chain and you maintain full control.
                     </p>
                   </div>
@@ -292,7 +347,7 @@ const Dashboard: React.FC = () => {
             <Card padding="lg" className="mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-white">Portfolio Overview</h2>
-                <TrendingUp className="w-6 h-6 text-primary-400" />
+                <TrendingUp className="w-6 h-6 text-lisk-400" />
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="group relative">
@@ -320,7 +375,7 @@ const Dashboard: React.FC = () => {
                 </div>
                 <div className="group relative">
                   <p className="text-xs text-dark-textMuted mb-1">Available to Borrow</p>
-                  <p className="text-xl font-bold text-primary-400">{formatCurrency(maxBorrowAmount)}</p>
+                  <p className="text-xl font-bold text-lisk-400">{formatCurrency(maxBorrowAmount)}</p>
                   <div className="hidden group-hover:block absolute z-10 bottom-full mb-2 w-48 p-2 bg-dark-card border border-dark-border rounded-lg shadow-lg text-xs text-dark-textMuted">
                     Maximum GMFOT you can borrow (50% of collateral value - current debt)
                   </div>
@@ -328,42 +383,32 @@ const Dashboard: React.FC = () => {
               </div>
             </Card>
 
-            {/* Vault Cards Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              {/* ETH Sepolia Vault */}
-              <VaultCard
-                tokenName="Ethereum"
-                tokenSymbol="ETH"
-                network="Ethereum Sepolia"
-                collateralBalance={ethSepoliaCollateral}
-                collateralAmount={parseFloat(collateralAmount) * 0.6}
-                tokenPrice={ethPriceNum}
-                healthFactor={healthFactorValue}
+            {/* Vault Cards Grid - Multi-Network View */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+              {/* Lisk Sepolia Vault */}
+              <NetworkVaultCard
+                data={lisk}
                 onDeposit={() => handleOpenModal('deposit')}
+                onBorrow={() => handleOpenModal('borrow')}
                 onWithdraw={() => handleOpenModal('withdraw')}
-                isConnected={isConnected}
+                isActiveNetwork={chainId === lisk.chainId}
               />
 
-              {/* Lisk Sepolia Vault */}
-              <VaultCard
-                tokenName="Ethereum"
-                tokenSymbol="ETH"
-                network="Lisk Sepolia"
-                collateralBalance={liskSepoliaCollateral}
-                collateralAmount={parseFloat(collateralAmount) * 0.4}
-                tokenPrice={ethPriceNum}
-                healthFactor={healthFactorValue}
+              {/* Ethereum Sepolia Vault */}
+              <NetworkVaultCard
+                data={ethereum}
                 onDeposit={() => handleOpenModal('deposit')}
+                onBorrow={() => handleOpenModal('borrow')}
                 onWithdraw={() => handleOpenModal('withdraw')}
-                isConnected={isConnected}
+                isActiveNetwork={chainId === ethereum.chainId}
               />
             </div>
 
             {/* GMFOT Token Card */}
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               <GMFOTCard
-                totalBorrowed={debtBalance + 5000} // Mock total borrowed (current + repaid)
-                totalRepaid={5000} // Mock total repaid
+                totalBorrowed={debtBalance}
+                totalRepaid={0}
                 currentDebt={debtBalance}
                 interestRate={8}
                 onBorrow={() => handleOpenModal('borrow')}
@@ -382,23 +427,43 @@ const Dashboard: React.FC = () => {
       {/* Bottom Navigation - Only show if wallet connected */}
       {isConnected && <BottomNav onOpenModal={handleOpenModal} />}
 
-      {/* Modals */}
+      {/* Modals - Use active network's data */}
       <DepositModal
         isOpen={openModal === 'deposit'}
         onClose={() => setOpenModal(null)}
-        currentCollateral={collateralBalance}
-        currentCollateralAmount={parseFloat(collateralAmount)}
+        currentCollateral={
+          chainId === lisk.chainId
+            ? parseFloat(lisk.collateral) * ethPriceNum
+            : parseFloat(ethereum.collateral) * ethPriceNum
+        }
+        currentCollateralAmount={
+          chainId === lisk.chainId
+            ? parseFloat(lisk.collateral)
+            : parseFloat(ethereum.collateral)
+        }
         tokenSymbol="ETH"
-        tokenPrice={collateralPriceNum}
+        tokenPrice={ethPriceNum}
         onDeposit={handleDeposit}
       />
 
       <BorrowModal
         isOpen={openModal === 'borrow'}
         onClose={() => setOpenModal(null)}
-        collateralValue={collateralBalance}
-        currentDebt={debtBalance}
-        currentHealthFactor={healthFactorValue}
+        collateralValue={
+          chainId === lisk.chainId
+            ? parseFloat(lisk.collateral) * ethPriceNum
+            : parseFloat(ethereum.collateral) * ethPriceNum
+        }
+        currentDebt={
+          chainId === lisk.chainId
+            ? parseFloat(lisk.debt)
+            : parseFloat(ethereum.debt)
+        }
+        currentHealthFactor={
+          chainId === lisk.chainId
+            ? parseFloat(lisk.healthFactor) * 100
+            : parseFloat(ethereum.healthFactor) * 100
+        }
         maxBorrowAmount={maxBorrowAmount}
         interestRate={8}
         onBorrow={handleBorrow}
@@ -407,7 +472,11 @@ const Dashboard: React.FC = () => {
       <RepayModal
         isOpen={openModal === 'repay'}
         onClose={() => setOpenModal(null)}
-        currentDebt={debtBalance}
+        currentDebt={
+          chainId === lisk.chainId
+            ? parseFloat(lisk.debt)
+            : parseFloat(ethereum.debt)
+        }
         debtToken="GMFOT"
         interestRate={8}
         borrowDate={borrowDate}
@@ -417,12 +486,28 @@ const Dashboard: React.FC = () => {
       <WithdrawModal
         isOpen={openModal === 'withdraw'}
         onClose={() => setOpenModal(null)}
-        currentCollateral={collateralBalance}
-        currentCollateralAmount={parseFloat(collateralAmount)}
-        currentDebt={debtBalance}
-        currentHealthFactor={healthFactorValue}
+        currentCollateral={
+          chainId === lisk.chainId
+            ? parseFloat(lisk.collateral) * ethPriceNum
+            : parseFloat(ethereum.collateral) * ethPriceNum
+        }
+        currentCollateralAmount={
+          chainId === lisk.chainId
+            ? parseFloat(lisk.collateral)
+            : parseFloat(ethereum.collateral)
+        }
+        currentDebt={
+          chainId === lisk.chainId
+            ? parseFloat(lisk.debt)
+            : parseFloat(ethereum.debt)
+        }
+        currentHealthFactor={
+          chainId === lisk.chainId
+            ? parseFloat(lisk.healthFactor) * 100
+            : parseFloat(ethereum.healthFactor) * 100
+        }
         tokenSymbol="ETH"
-        tokenPrice={collateralPriceNum}
+        tokenPrice={ethPriceNum}
         onWithdraw={handleWithdraw}
       />
     </div>

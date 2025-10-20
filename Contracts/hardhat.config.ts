@@ -46,7 +46,7 @@ const config: HardhatUserConfig = {
       accounts,
       gasPrice: "auto",
       gas: "auto",
-    },
+    },                                                              
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
@@ -56,7 +56,18 @@ const config: HardhatUserConfig = {
     apiKey: {
       sepolia: process.env.ETHERSCAN_API_KEY || "",
       mainnet: process.env.ETHERSCAN_API_KEY || "",
+      "lisk-sepolia": process.env.LISK_BLOCKSCOUT_API_KEY || "empty"
     },
+    customChains: [
+      {
+        network: "lisk-sepolia",
+        chainId: 4202,
+        urls: {
+          apiURL: "https://sepolia-blockscout.lisk.com/api",
+          browserURL: "https://sepolia-blockscout.lisk.com"
+        }
+      }
+    ]
   },
 };
 

@@ -28,10 +28,10 @@ const Button: React.FC<ButtonProps> = ({
   const baseStyles = 'font-semibold rounded-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 relative overflow-hidden';
   
   const variantStyles = {
-    primary: 'bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white shadow-lg hover:shadow-glow',
-    secondary: 'bg-dark-card hover:bg-dark-cardHover text-white border-2 border-dark-border hover:border-primary-500 shadow-card hover:shadow-card-hover',
+    primary: 'bg-gradient-to-r from-lisk-600 to-lisk-700 hover:from-lisk-500 hover:to-lisk-600 text-white shadow-lg hover:shadow-lisk-glow',
+    secondary: 'bg-dark-card hover:bg-dark-cardHover text-white border-2 border-dark-border hover:border-lisk-500 shadow-card hover:shadow-card-hover',
     danger: 'bg-gradient-to-r from-danger-600 to-danger-700 hover:from-danger-500 hover:to-danger-600 text-white shadow-lg',
-    ghost: 'bg-transparent hover:bg-white/5 text-dark-text border border-transparent hover:border-primary-500/30',
+    ghost: 'bg-transparent hover:bg-white/5 text-dark-text border border-transparent hover:border-lisk-500/30',
   };
   
   const sizeStyles = {
