@@ -30,7 +30,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
@@ -38,21 +38,21 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
       />
 
       {/* Modal Content */}
-      <div className="relative bg-dark-card border border-dark-border rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-slide-up">
-        
+      <div className="relative bg-dark-card border-t sm:border border-dark-border rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-lg max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-slide-up">
+
         {/* Header */}
-        <div className="sticky top-0 bg-dark-card border-b border-dark-border px-6 py-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-white">{title}</h2>
+        <div className="sticky top-0 bg-dark-card border-b border-dark-border px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-10">
+          <h2 className="text-xl sm:text-2xl font-bold text-white">{title}</h2>
           <button
             onClick={onClose}
             className="text-dark-textMuted hover:text-white transition-colors p-1 hover:bg-dark-border rounded-lg"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {children}
         </div>
       </div>

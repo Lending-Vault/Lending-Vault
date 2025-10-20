@@ -1,7 +1,26 @@
+/**
+ * ⚠️ DEPRECATED - Simple Deployment Script
+ *
+ * This is a basic deployment script for quick testing and learning.
+ *
+ * For production deployments, use:
+ * - deploy-lisk.ts (for Lisk Sepolia)
+ * - deploy-ethereum.ts (for Ethereum Sepolia)
+ *
+ * Those scripts include:
+ * - Native ETH support
+ * - Oracle redundancy (RedStone/Chainlink + Manual fallback)
+ * - GMFOT token & SavingsVault
+ * - Complete configuration
+ */
+
 import { ethers, network } from "hardhat";
 import * as fs from "fs";
 
 async function main() {
+  console.log("⚠️  WARNING: Using deprecated simple deployment script");
+  console.log("For production, use deploy-lisk.ts or deploy-ethereum.ts\n");
+
   console.log("Deploying LiquidVault...");
   const [deployer] = await ethers.getSigners();
   console.log("Deployer:", deployer.address);

@@ -5,6 +5,8 @@ import Modal from '../UI/Modal';
 import Input from '../UI/Input';
 import Button from '../UI/Button';
 import InfoBox from '../UI/InfoBox';
+import { useNativeBalance } from '../../hooks';
+import { formatUnits } from 'viem';
 
 interface DepositModalProps {
   isOpen: boolean;
@@ -26,39 +28,34 @@ const DepositModal: React.FC<DepositModalProps> = ({
   onDeposit,
 }) => {
   const [amount, setAmount] = useState('');
-  const [step, setStep] = useState<'input' | 'approve' | 'confirm'>('input');
-  const [loading, setLoading] = useState(false);
+
+  // Get user's native ETH balance
+  const { balance, refetch: refetchBalance } = useNativeBalance();
 
   const depositAmount = parseFloat(amount) || 0;
   const depositValue = depositAmount * tokenPrice;
   const newCollateral = currentCollateral + depositValue;
   const newCollateralAmount = currentCollateralAmount + depositAmount;
 
+  // Get user's ETH balance in human-readable format
+  const userBalance = balance ? parseFloat(formatUnits(balance, 18)) : 0;
+
   const handleMaxClick = () => {
-    // Mock: User has 10 ETH available
-    setAmount('10');
+    // Leave a small amount for gas fees (0.01 ETH)
+    const maxAmount = Math.max(0, userBalance - 0.01);
+    setAmount(maxAmount.toString());
   };
 
-  const handleApprove = () => {
-    setLoading(true);
-    // Simulate approval transaction
-    setTimeout(() => {
-      setLoading(false);
-      setStep('confirm');
-    }, 2000);
-  };
-
-  const handleDeposit = () => {
-    setLoading(true);
-    // Simulate deposit transaction
-    setTimeout(() => {
-      setLoading(false);
-      onDeposit?.(depositAmount);
+  const handleDeposit = async () => {
+    try {
+      await onDeposit?.(depositAmount);
+      refetchBalance();
       onClose();
       // Reset
       setAmount('');
-      setStep('input');
-    }, 2000);
+    } catch (error) {
+      console.error('Deposit error:', error);
+    }
   };
 
   return (
@@ -110,52 +107,38 @@ const DepositModal: React.FC<DepositModalProps> = ({
           </div>
         </div>
 
-        {/* Info Message */}
-        <div className="bg-primary-500/10 border border-primary-500/30 rounded-lg p-4 flex gap-3">
-          <AlertCircle className="w-5 h-5 text-primary-400 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-primary-300">
-            <p className="font-semibold mb-1">Minimum Deposit</p>
-            <p>Minimum deposit is 0.01 {tokenSymbol} equivalent.</p>
+        {/* Info Messages */}
+        <div className="space-y-3">
+          <div className="bg-success-500/10 border border-success-500/30 rounded-lg p-4 flex gap-3">
+            <svg className="w-5 h-5 text-success-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="text-sm text-success-300">
+              <p className="font-semibold mb-1">No Approval Needed!</p>
+              <p>You're depositing native {tokenSymbol} directly. No token approval required - just one transaction!</p>
+            </div>
+          </div>
+
+          <div className="bg-primary-500/10 border border-primary-500/30 rounded-lg p-4 flex gap-3">
+            <AlertCircle className="w-5 h-5 text-primary-400 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-primary-300">
+              <p className="font-semibold mb-1">Minimum Deposit</p>
+              <p>Minimum deposit is 0.01 {tokenSymbol} equivalent. Leave some {tokenSymbol} for gas fees.</p>
+            </div>
           </div>
         </div>
 
         {/* Action Buttons */}
         <div className="space-y-3">
-          {step === 'input' && (
-            <Button
-              variant="primary"
-              fullWidth
-              size="lg"
-              onClick={handleApprove}
-              disabled={depositAmount <= 0}
-            >
-              Approve {tokenSymbol}
-            </Button>
-          )}
-
-          {step === 'approve' && (
-            <Button
-              variant="primary"
-              fullWidth
-              size="lg"
-              onClick={handleApprove}
-              loading={loading}
-            >
-              {loading ? 'Approving...' : 'Approve Transaction'}
-            </Button>
-          )}
-
-          {step === 'confirm' && (
-            <Button
-              variant="primary"
-              fullWidth
-              size="lg"
-              onClick={handleDeposit}
-              loading={loading}
-            >
-              {loading ? 'Depositing...' : `Deposit ${amount} ${tokenSymbol}`}
-            </Button>
-          )}
+          <Button
+            variant="primary"
+            fullWidth
+            size="lg"
+            onClick={handleDeposit}
+            disabled={depositAmount <= 0 || depositAmount > userBalance}
+          >
+            Deposit {amount || '0'} {tokenSymbol}
+          </Button>
 
           <Button variant="ghost" fullWidth onClick={onClose}>
             Cancel

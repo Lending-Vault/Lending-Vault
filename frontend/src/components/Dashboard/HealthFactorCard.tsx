@@ -17,8 +17,14 @@ const HealthFactorCard: React.FC<HealthFactorCardProps> = ({ healthFactor }) => 
     return <XCircle className="w-8 h-8 text-danger-500" />;
   };
 
+  const getBorderColor = () => {
+    if (healthFactor >= 200) return 'border-l-success-500';
+    if (healthFactor >= 150) return 'border-l-warning-500';
+    return 'border-l-danger-500';
+  };
+
   return (
-    <Card className="border-l-4" style={{ borderLeftColor: status.color.replace('text-', '') }}>
+    <Card className={`border-l-4 ${getBorderColor()}`}>
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <p className="text-sm font-medium text-dark-textMuted mb-2">

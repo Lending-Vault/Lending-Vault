@@ -32,6 +32,7 @@ export interface VaultManagerInterface extends Interface {
       | "LIQUIDATION_THRESHOLD"
       | "LIQUIDATOR_REWARD"
       | "LTV_RATIO"
+      | "NATIVE_ETH"
       | "PROTOCOL_FEE"
       | "acceptOwnership"
       | "acceptedBorrowTokens"
@@ -42,6 +43,7 @@ export interface VaultManagerInterface extends Interface {
       | "collateral"
       | "debt"
       | "deposit"
+      | "depositETH"
       | "getCollateralValue"
       | "getHealthFactor"
       | "getOverallHealthFactor"
@@ -61,6 +63,7 @@ export interface VaultManagerInterface extends Interface {
       | "transferOwnership"
       | "unpause"
       | "withdraw"
+      | "withdrawETH"
   ): FunctionFragment;
 
   getEvent(
@@ -95,6 +98,10 @@ export interface VaultManagerInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "LTV_RATIO", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "NATIVE_ETH",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "PROTOCOL_FEE",
     values?: undefined
@@ -134,6 +141,10 @@ export interface VaultManagerInterface extends Interface {
   encodeFunctionData(
     functionFragment: "deposit",
     values: [AddressLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "depositETH",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getCollateralValue",
@@ -199,6 +210,10 @@ export interface VaultManagerInterface extends Interface {
     functionFragment: "withdraw",
     values: [AddressLike, BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawETH",
+    values: [BigNumberish]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "BASIS_POINTS",
@@ -221,6 +236,7 @@ export interface VaultManagerInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "LTV_RATIO", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "NATIVE_ETH", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "PROTOCOL_FEE",
     data: BytesLike
@@ -249,6 +265,7 @@ export interface VaultManagerInterface extends Interface {
   decodeFunctionResult(functionFragment: "collateral", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "debt", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "depositETH", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getCollateralValue",
     data: BytesLike
@@ -304,6 +321,10 @@ export interface VaultManagerInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawETH",
+    data: BytesLike
+  ): Result;
 }
 
 export namespace BorrowedEvent {
@@ -492,6 +513,8 @@ export interface VaultManager extends BaseContract {
 
   LTV_RATIO: TypedContractMethod<[], [bigint], "view">;
 
+  NATIVE_ETH: TypedContractMethod<[], [string], "view">;
+
   PROTOCOL_FEE: TypedContractMethod<[], [bigint], "view">;
 
   acceptOwnership: TypedContractMethod<[], [void], "nonpayable">;
@@ -547,6 +570,8 @@ export interface VaultManager extends BaseContract {
     [void],
     "nonpayable"
   >;
+
+  depositETH: TypedContractMethod<[], [void], "payable">;
 
   getCollateralValue: TypedContractMethod<
     [user: AddressLike, token: AddressLike],
@@ -630,6 +655,12 @@ export interface VaultManager extends BaseContract {
     "nonpayable"
   >;
 
+  withdrawETH: TypedContractMethod<
+    [amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
@@ -652,6 +683,9 @@ export interface VaultManager extends BaseContract {
   getFunction(
     nameOrSignature: "LTV_RATIO"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "NATIVE_ETH"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "PROTOCOL_FEE"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -702,6 +736,9 @@ export interface VaultManager extends BaseContract {
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "depositETH"
+  ): TypedContractMethod<[], [void], "payable">;
   getFunction(
     nameOrSignature: "getCollateralValue"
   ): TypedContractMethod<
@@ -783,6 +820,9 @@ export interface VaultManager extends BaseContract {
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "withdrawETH"
+  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
 
   getEvent(
     key: "Borrowed"

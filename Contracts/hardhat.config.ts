@@ -40,23 +40,9 @@ const config: HardhatUserConfig = {
       gasPrice: "auto",
       gas: "auto",
     },
-    "ethereum-mainnet": {
-      url: ETHEREUM_MAINNET_RPC_URL || "https://ethereum-rpc.publicnode.com",
-      chainId: 1,
-      accounts,
-      gasPrice: "auto",
-      gas: "auto",
-    },
     "lisk-sepolia": {
       url: LISK_RPC_URL || "https://rpc.sepolia-api.lisk.com",
       chainId: 4202,
-      accounts,
-      gasPrice: "auto",
-      gas: "auto",
-    },
-    "lisk-mainnet": {
-      url: LISK_MAINNET_RPC_URL || "https://rpc.api.lisk.com",
-      chainId: 1135,
       accounts,
       gasPrice: "auto",
       gas: "auto",

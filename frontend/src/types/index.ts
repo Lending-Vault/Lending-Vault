@@ -11,12 +11,14 @@ export interface UserPosition {
 }
 
 export interface Transaction {
-  id: number;
+  id: number | string;
   type: 'Deposit' | 'Borrow' | 'Repay' | 'Withdraw' | 'Liquidation';
   amount: string;
   date: string;
   status: 'Success' | 'Pending' | 'Failed';
   txHash: string;
+  fullTxHash?: string; // Full transaction hash for block explorer
+  blockNumber?: bigint; // Block number for sorting
 }
 
-export type ModalType = 'deposit' | 'borrow' | 'repay' | 'withdraw' | null;
+export type ModalType = 'deposit' | 'borrow' | 'repay' | 'withdraw' | 'stake' | 'unstake' | null;

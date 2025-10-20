@@ -119,7 +119,8 @@ contract OracleManager is Ownable {
         // Last resort: manual oracle
         return this.getPrice(token);
     }
-on _calculateDeviation(uint256 price1, uint256 price2) internal pure returns (uint256 deviation) {
+
+    function _calculateDeviation(uint256 price1, uint256 price2) internal pure returns (uint256 deviation) {
         uint256 diff = price1 > price2 ? price1 - price2 : price2 - price1;
         uint256 average = (price1 + price2) / 2;
         return (diff * BASIS_POINTS) / average;

@@ -1,14 +1,18 @@
 // src/components/Dashboard/TransactionHistory.tsx
 import React from 'react';
 import { ExternalLink, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { useAccount } from 'wagmi';
 import Card from '../UI/Card';
 import type { Transaction } from '../../types';
+import { getBlockExplorerUrl } from '../../hooks';
 
 interface TransactionHistoryProps {
   transactions: Transaction[];
+  isLoading?: boolean;
 }
 
-const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions }) => {
+const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions, isLoading = false }) => {
+  const { chainId } = useAccount();
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'Success':
@@ -37,9 +41,10 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
 
   return (
     <Card>
-      <h2 className="text-xl font-bold text-white mb-6">Transaction History</h2>
-      
-      <div className="overflow-x-auto">
+      <h2 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">Transaction History</h2>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="border-b border-dark-border">
@@ -52,8 +57,8 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
           </thead>
           <tbody>
             {transactions.map((tx) => (
-              <tr 
-                key={tx.id} 
+              <tr
+                key={tx.id}
                 className="border-b border-dark-border/50 hover:bg-dark-cardHover transition-colors"
               >
                 <td className="py-4 px-4">
@@ -72,8 +77,8 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
                   </span>
                 </td>
                 <td className="py-4 px-4">
-                  <a 
-                    href={`#`} 
+                  <a
+                    href={getBlockExplorerUrl(chainId, (tx as any).fullTxHash || tx.txHash)}
                     className="text-primary-400 hover:text-primary-300 flex items-center gap-1 text-sm font-mono"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -88,10 +93,56 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
         </table>
       </div>
 
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3">
+        {transactions.map((tx) => (
+          <div
+            key={tx.id}
+            className="bg-dark-bg border border-dark-border rounded-lg p-4 space-y-3"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-white font-semibold mb-1">{tx.type}</p>
+                <p className="text-dark-textMuted text-xs">{tx.date}</p>
+              </div>
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusColor(tx.status)}`}>
+                {getStatusIcon(tx.status)}
+                {tx.status}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-dark-border">
+              <div>
+                <p className="text-xs text-dark-textMuted mb-1">Amount</p>
+                <p className="text-white font-medium">{tx.amount}</p>
+              </div>
+              <a
+                href={getBlockExplorerUrl(chainId, (tx as any).fullTxHash || tx.txHash)}
+                className="text-primary-400 hover:text-primary-300 flex items-center gap-1 text-xs font-mono"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {tx.txHash}
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-400"></div>
+          <p className="text-dark-textMuted mt-4">Loading transactions...</p>
+        </div>
+      )}
+
       {/* Empty State */}
-      {transactions.length === 0 && (
+      {!isLoading && transactions.length === 0 && (
         <div className="text-center py-12">
           <p className="text-dark-textMuted">No transactions yet</p>
+          <p className="text-sm text-dark-textMuted mt-2">Your transaction history will appear here</p>
         </div>
       )}
     </Card>

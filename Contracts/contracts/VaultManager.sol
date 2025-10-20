@@ -32,6 +32,9 @@ contract VaultManager is ReentrancyGuard, Pausable {
 
     address public protocolTreasury;
 
+    // Special address to represent native ETH in collateral mappings
+    address public constant NATIVE_ETH = address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
+
     uint256 public constant LTV_RATIO = 5000; // 50%
     uint256 public constant LIQUIDATION_THRESHOLD = 15000; // 150%
     uint256 public constant LIQUIDATION_PENALTY = 1000; // 10%
@@ -126,9 +129,20 @@ contract VaultManager is ReentrancyGuard, Pausable {
         acceptedBorrowTokens[token] = false;
     }
 
-    // Deposit accepted collateral into the vault
+    // Deposit native ETH as collateral
+    function depositETH() external payable nonReentrant whenNotPaused {
+        if (msg.value == 0) revert VaultManager__ZeroAmount();
+        if (!acceptedCollateral[NATIVE_ETH]) revert VaultManager__TokenNotAccepted();
+
+        collateral[msg.sender][NATIVE_ETH] += msg.value;
+
+        emit CollateralDeposited(msg.sender, NATIVE_ETH, msg.value);
+    }
+
+    // Deposit accepted ERC20 collateral into the vault
     function deposit(address token, uint256 amount) external nonReentrant whenNotPaused {
         if (amount == 0) revert VaultManager__ZeroAmount();
+        if (token == NATIVE_ETH) revert VaultManager__TokenNotAccepted(); // Use depositETH() for native ETH
         if (!acceptedCollateral[token]) revert VaultManager__TokenNotAccepted();
 
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
@@ -138,9 +152,33 @@ contract VaultManager is ReentrancyGuard, Pausable {
         emit CollateralDeposited(msg.sender, token, amount);
     }
 
-    // Withdraw collateral from the vault
+    // Withdraw native ETH collateral from the vault
+    function withdrawETH(uint256 amount) external nonReentrant whenNotPaused {
+        if (amount == 0) revert VaultManager__ZeroAmount();
+        if (collateral[msg.sender][NATIVE_ETH] < amount) revert VaultManager__InsufficientCollateral();
+
+        // Temporarily reduce collateral to check health factor after withdrawal
+        collateral[msg.sender][NATIVE_ETH] -= amount;
+
+        // Check overall health factor across all positions
+        uint256 healthFactor = getOverallHealthFactor(msg.sender);
+        if (healthFactor < LIQUIDATION_THRESHOLD && healthFactor != type(uint256).max) {
+            // Revert the collateral reduction
+            collateral[msg.sender][NATIVE_ETH] += amount;
+            revert VaultManager__HealthFactorTooLow();
+        }
+
+        // Transfer native ETH
+        (bool success, ) = msg.sender.call{value: amount}("");
+        if (!success) revert VaultManager__TransferFailed();
+
+        emit CollateralWithdrawn(msg.sender, NATIVE_ETH, amount);
+    }
+
+    // Withdraw ERC20 collateral from the vault
     function withdraw(address token, uint256 amount) external nonReentrant whenNotPaused {
         if (amount == 0) revert VaultManager__ZeroAmount();
+        if (token == NATIVE_ETH) revert VaultManager__TokenNotAccepted(); // Use withdrawETH() for native ETH
         if (collateral[msg.sender][token] < amount) revert VaultManager__InsufficientCollateral();
 
         // Temporarily reduce collateral to check health factor after withdrawal
@@ -303,13 +341,29 @@ contract VaultManager is ReentrancyGuard, Pausable {
         uint256 protocolFee = (collateralToSeize * PROTOCOL_FEE) / BASIS_POINTS; // 5%
         uint256 userRefund = collateralToSeize - liquidatorReward - protocolFee; // 90%
 
-        // Transfer rewards and refund
-        IERC20(collateralToken).safeTransfer(msg.sender, liquidatorReward);
-        IERC20(collateralToken).safeTransfer(protocolTreasury, protocolFee);
-        if (userRefund > 0) {
-            IERC20(collateralToken).safeTransfer(user, userRefund);
+        // Transfer rewards and refund - handle native ETH differently
+        if (collateralToken == NATIVE_ETH) {
+            (bool success1, ) = msg.sender.call{value: liquidatorReward}("");
+            if (!success1) revert VaultManager__TransferFailed();
+
+            (bool success2, ) = protocolTreasury.call{value: protocolFee}("");
+            if (!success2) revert VaultManager__TransferFailed();
+
+            if (userRefund > 0) {
+                (bool success3, ) = user.call{value: userRefund}("");
+                if (!success3) revert VaultManager__TransferFailed();
+            }
+        } else {
+            IERC20(collateralToken).safeTransfer(msg.sender, liquidatorReward);
+            IERC20(collateralToken).safeTransfer(protocolTreasury, protocolFee);
+            if (userRefund > 0) {
+                IERC20(collateralToken).safeTransfer(user, userRefund);
+            }
         }
 
         emit Liquidated(user, collateralToken, debtToken, collateralToSeize, liquidatorReward);
     }
+
+    // Allow contract to receive ETH
+    receive() external payable {}
 }
