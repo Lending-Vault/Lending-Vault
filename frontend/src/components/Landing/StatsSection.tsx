@@ -1,37 +1,6 @@
 import React from 'react';
-import { TrendingUp, Users, DollarSign, Shield } from 'lucide-react';
 
 const StatsSection: React.FC = () => {
-  const stats = [
-    {
-      icon: DollarSign,
-      value: '$50M+',
-      label: 'Total Value Locked',
-      description: 'Assets secured in our lending pools',
-      color: 'from-lisk-400 to-lisk-600'
-    },
-    {
-      icon: Users,
-      value: '10K+',
-      label: 'Active Users',
-      description: 'Community of lenders and borrowers',
-      color: 'from-success-400 to-success-600'
-    },
-    {
-      icon: TrendingUp,
-      value: '8-15%',
-      label: 'APY Rates',
-      description: 'Competitive annual percentage yields',
-      color: 'from-warning-400 to-warning-600'
-    },
-    {
-      icon: Shield,
-      value: '100%',
-      label: 'Security Score',
-      description: 'Audited and battle-tested protocols',
-      color: 'from-lisk-400 to-lisk-600'
-    }
-  ];
 
   return (
     <section className="py-20 relative">

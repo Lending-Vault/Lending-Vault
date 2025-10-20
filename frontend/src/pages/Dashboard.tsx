@@ -1,8 +1,8 @@
 // src/pages/Dashboard.tsx
 import React, { useState, useEffect } from 'react';
 import { Wallet, TrendingUp } from 'lucide-react';
-import { useAccount, useReadContract } from 'wagmi';
-import { formatUnits, parseUnits } from 'viem';
+import { useAccount } from 'wagmi';
+import { formatUnits } from 'viem';
 import Header from '../components/Layout/Header';
 import BottomNav from '../components/Layout/BottomNav';
 import NetworkVaultCard from '../components/Dashboard/NetworkVaultCard';
@@ -27,7 +27,6 @@ import { useMultiNetworkVault } from '../hooks/useMultiNetworkVault';
 import { useMultiNetworkTransactionHistory } from '../hooks/useMultiNetworkTransactionHistory';
 import { useTokenPrice } from '../hooks/useOracle';
 import { getContractAddresses } from '../config/contracts';
-import { IERC20ABI, VaultManagerABI } from '../abis';
 
 const Dashboard: React.FC = () => {
   const [selectedChain, setSelectedChain] = useState<'ethereum' | 'lisk'>('lisk');
@@ -38,29 +37,29 @@ const Dashboard: React.FC = () => {
   const contractAddresses = getContractAddresses(chainId);
 
   // Preflight reads: check GMFOT acceptance and VaultManager liquidity
-  const { data: isGMFOTAcceptedRaw } = useReadContract({
-    address: contractAddresses?.VaultManager as `0x${string}` | undefined,
-    abi: VaultManagerABI,
-    functionName: 'acceptedBorrowTokens',
-    args: contractAddresses?.GMFOTToken ? [contractAddresses.GMFOTToken as `0x${string}`] : undefined,
-    query: {
-      enabled: !!contractAddresses?.VaultManager && !!contractAddresses?.GMFOTToken,
-    },
-  });
+  // const { data: isGMFOTAcceptedRaw } = useReadContract({
+  //   address: contractAddresses?.VaultManager as `0x${string}` | undefined,
+  //   abi: VaultManagerABI,
+  //   functionName: 'acceptedBorrowTokens',
+  //   args: contractAddresses?.GMFOTToken ? [contractAddresses.GMFOTToken as `0x${string}`] : undefined,
+  //   query: {
+  //     enabled: !!contractAddresses?.VaultManager && !!contractAddresses?.GMFOTToken,
+  //   },
+  // });
 
-  const { data: gmfotLiquidityRaw } = useReadContract({
-    address: contractAddresses?.GMFOTToken as `0x${string}` | undefined,
-    abi: IERC20ABI,
-    functionName: 'balanceOf',
-    args: contractAddresses?.VaultManager ? [contractAddresses.VaultManager as `0x${string}`] : undefined,
-    query: {
-      enabled: !!contractAddresses?.GMFOTToken && !!contractAddresses?.VaultManager,
-    },
-  });
+  // const { data: gmfotLiquidityRaw } = useReadContract({
+  //   address: contractAddresses?.GMFOTToken as `0x${string}` | undefined,
+  //   abi: IERC20ABI,
+  //   functionName: 'balanceOf',
+  //   args: contractAddresses?.VaultManager ? [contractAddresses.VaultManager as `0x${string}`] : undefined,
+  //   query: {
+  //     enabled: !!contractAddresses?.GMFOTToken && !!contractAddresses?.VaultManager,
+  //   },
+  // });
 
   // Type-narrow raw reads
-  const isGMFOTAccepted = typeof isGMFOTAcceptedRaw === 'boolean' ? isGMFOTAcceptedRaw : undefined;
-  const gmfotLiquidity = typeof gmfotLiquidityRaw === 'bigint' ? gmfotLiquidityRaw : undefined;
+  // const isGMFOTAccepted = typeof isGMFOTAcceptedRaw === 'boolean' ? isGMFOTAcceptedRaw : undefined;
+  // const gmfotLiquidity = typeof gmfotLiquidityRaw === 'bigint' ? gmfotLiquidityRaw : undefined;
 
   // Multi-network vault data hooks
   const { lisk, ethereum, refetchAll } = useMultiNetworkVault();

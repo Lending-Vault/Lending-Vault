@@ -1,5 +1,5 @@
 // Diagnostic utility to help identify borrow issues
-import { readContract } from '@wagmi/core';
+import { readContract, getAccount } from '@wagmi/core';
 import { config } from '../config/wagmi';
 import { getContractAddresses } from '../config/contracts';
 import { VaultManagerABI } from '../abis';
@@ -19,7 +19,7 @@ export interface DiagnosticResult {
  */
 export async function diagnoseBorrowIssues(): Promise<DiagnosticResult[]> {
   const results: DiagnosticResult[] = [];
-  const contractAddresses = getContractAddresses(config.state.chainId);
+  const contractAddresses = getContractAddresses(getAccount(config).chainId);
 
   if (!contractAddresses?.VaultManager) {
     results.push({
@@ -32,7 +32,8 @@ export async function diagnoseBorrowIssues(): Promise<DiagnosticResult[]> {
   }
 
   // Get user's address
-  const address = config.state.connections.get(config.state.current)?.accounts?.[0];
+  const account = getAccount(config);
+  const address = account.address;
   if (!address) {
     results.push({
       issue: 'Wallet not connected',
@@ -42,6 +43,7 @@ export async function diagnoseBorrowIssues(): Promise<DiagnosticResult[]> {
     });
     return results;
   }
+  const userAddress = address!;
 
   // Check 1: Token acceptance
   try {
@@ -92,10 +94,10 @@ export async function diagnoseBorrowIssues(): Promise<DiagnosticResult[]> {
       address: contractAddresses.VaultManager as `0x${string}`,
       abi: VaultManagerABI,
       functionName: 'collateral',
-      args: [address, NATIVE_ETH],
+      args: [userAddress, NATIVE_ETH],
     });
 
-    if (collateral === 0n) {
+    if (collateral as unknown as bigint === 0n) {
       results.push({
         issue: 'No collateral deposited',
         severity: 'error',
@@ -106,7 +108,7 @@ export async function diagnoseBorrowIssues(): Promise<DiagnosticResult[]> {
       results.push({
         issue: 'Collateral found',
         severity: 'info',
-        details: `Collateral amount: ${formatUnits(collateral, 18)} ETH`,
+        details: `Collateral amount: ${formatUnits(collateral as unknown as bigint, 18)} ETH`,
         suggestedFix: '',
       });
     }
@@ -121,11 +123,13 @@ export async function diagnoseBorrowIssues(): Promise<DiagnosticResult[]> {
 
   // Check 3: Oracle prices
   try {
-    const priceOracle = await readContract(config, {
+    const priceOracleResult = await readContract(config, {
       address: contractAddresses.VaultManager as `0x${string}`,
       abi: VaultManagerABI,
       functionName: 'priceOracle',
+      args: [],
     });
+    const priceOracle = priceOracleResult as unknown as `0x${string}`;
 
     results.push({
       issue: 'Price oracle found',
@@ -136,8 +140,8 @@ export async function diagnoseBorrowIssues(): Promise<DiagnosticResult[]> {
 
     // Try to get ETH price
     try {
-      const ethPrice = await readContract(config, {
-        address: priceOracle as `0x${string}`,
+      const ethPriceResult = await readContract(config, {
+        address: priceOracle,
         abi: [
           {
             name: 'getPrice',
@@ -150,6 +154,7 @@ export async function diagnoseBorrowIssues(): Promise<DiagnosticResult[]> {
         functionName: 'getPrice',
         args: [NATIVE_ETH],
       });
+      const ethPrice = ethPriceResult as unknown as bigint;
 
       if (ethPrice === 0n) {
         results.push({
@@ -212,7 +217,7 @@ export async function diagnoseBorrowIssues(): Promise<DiagnosticResult[]> {
 
   // Check 4: GMFOT liquidity
   try {
-    const liquidity = await readContract(config, {
+    const liquidityResult = await readContract(config, {
       address: contractAddresses.GMFOTToken as `0x${string}`,
       abi: [
         {
@@ -226,6 +231,7 @@ export async function diagnoseBorrowIssues(): Promise<DiagnosticResult[]> {
       functionName: 'balanceOf',
       args: [contractAddresses.VaultManager as `0x${string}`],
     });
+    const liquidity = liquidityResult as unknown as bigint;
 
     if (liquidity === 0n) {
       results.push({
@@ -253,14 +259,14 @@ export async function diagnoseBorrowIssues(): Promise<DiagnosticResult[]> {
 
   // Check 5: Health factor
   try {
-    const healthFactor = await readContract(config, {
+    const healthFactorResult = await readContract(config, {
       address: contractAddresses.VaultManager as `0x${string}`,
       abi: VaultManagerABI,
       functionName: 'getHealthFactor',
-      args: [address, NATIVE_ETH, contractAddresses.GMFOTToken as `0x${string}`],
+      args: [userAddress, NATIVE_ETH, contractAddresses.GMFOTToken as `0x${string}`],
     });
 
-    const hfValue = Number(formatUnits(healthFactor, 18));
+    const hfValue = Number(formatUnits(healthFactorResult as unknown as bigint, 18));
     if (hfValue < 150) {
       results.push({
         issue: 'Health factor too low',

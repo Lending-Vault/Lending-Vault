@@ -1,10 +1,10 @@
 // Utility functions to pre-check borrow conditions
-import { readContract } from '@wagmi/core';
+import { readContract, getAccount } from '@wagmi/core';
 import { config } from '../config/wagmi';
 import { getContractAddresses } from '../config/contracts';
 import { VaultManagerABI } from '../abis';
 import { formatUnits } from 'viem';
-import { NATIVE_ETH } from '../hooks/useVaultManager';
+// import { NATIVE_ETH } from '../hooks/useVaultManager';
 import { redstonePriceFeed } from './redstonePriceFeed';
 
 export interface BorrowPreCheckResult {
@@ -48,7 +48,7 @@ export async function performBorrowPreCheck(
   };
 
   try {
-    const contractAddresses = getContractAddresses(config.state.chainId);
+    const contractAddresses = getContractAddresses(getAccount(config).chainId);
     if (!contractAddresses?.VaultManager) {
       result.errors.push('VaultManager contract not found for current network');
       result.canBorrow = false;
@@ -91,12 +91,14 @@ export async function performBorrowPreCheck(
     }
 
     // Get user's address
-    const address = config.state.connections.get(config.state.current)?.accounts?.[0];
+    const account = getAccount(config);
+    const address = account.address;
     if (!address) {
       result.errors.push('Wallet not connected');
       result.canBorrow = false;
       return result;
     }
+    const userAddress = address!;
 
     // Check user's collateral and debt
     try {
@@ -105,17 +107,17 @@ export async function performBorrowPreCheck(
           address: contractAddresses.VaultManager as `0x${string}`,
           abi: VaultManagerABI,
           functionName: 'collateral',
-          args: [address, collateralToken],
+          args: [userAddress, collateralToken],
         }),
         readContract(config, {
           address: contractAddresses.VaultManager as `0x${string}`,
           abi: VaultManagerABI,
           functionName: 'debt',
-          args: [address, borrowToken],
+          args: [userAddress, borrowToken],
         }),
       ]);
 
-      result.info.currentDebt = formatUnits(userDebt as bigint, 18);
+      result.info.currentDebt = formatUnits(userDebt as unknown as bigint, 18);
 
       // Try to get collateral value from contract first
       let collateralValue = 0n;
@@ -123,17 +125,18 @@ export async function performBorrowPreCheck(
       let priceSource: 'onchain' | 'redstone' | 'none' = 'none';
 
       try {
-        collateralValue = await readContract(config, {
+        const collateralValueResult = await readContract(config, {
           address: contractAddresses.VaultManager as `0x${string}`,
           abi: VaultManagerABI,
           functionName: 'getCollateralValue',
-          args: [address, collateralToken],
-        }) as bigint;
+          args: [userAddress, collateralToken],
+        });
+        collateralValue = collateralValueResult as unknown as bigint;
 
         if (collateralValue > 0n) {
           priceSource = 'onchain';
           // Extract approximate ETH price from collateral value
-          ethPrice = Number(collateralValue) / Number(formatUnits(userCollateral as bigint, 18));
+          ethPrice = Number(collateralValue) / Number(formatUnits(userCollateral as unknown as bigint, 18));
         }
       } catch (error) {
         console.warn('Failed to get collateral value from contract, trying RedStone:', error);
@@ -142,11 +145,12 @@ export async function performBorrowPreCheck(
       // If on-chain oracle failed, try RedStone as fallback
       if (collateralValue === 0n) {
         try {
-          ethPrice = await redstonePriceFeed.getETHPrice();
+          const redstonePrice = await redstonePriceFeed.getETHPrice();
+          ethPrice = redstonePrice || 0;
           if (ethPrice && ethPrice > 0) {
             // Calculate collateral value using RedStone price
-            const collateralAmount = Number(formatUnits(userCollateral as bigint, 18));
-            collateralValue = BigInt(Math.floor(collateralAmount * ethPrice * 10**18));
+            const collateralAmount = Number(formatUnits(userCollateral as unknown as bigint, 18));
+            collateralValue = BigInt(Math.floor(collateralAmount * ethPrice * 10**18)) as unknown as bigint;
             priceSource = 'redstone';
             result.warnings.push('Using RedStone price feed as fallback (on-chain oracle unavailable)');
           }
@@ -216,14 +220,14 @@ export async function performBorrowPreCheck(
 
     // Check health factor
     try {
-      const healthFactor = await readContract(config, {
+      const healthFactorResult = await readContract(config, {
         address: contractAddresses.VaultManager as `0x${string}`,
         abi: VaultManagerABI,
         functionName: 'getHealthFactor',
-        args: [address, collateralToken, borrowToken],
+        args: [userAddress, collateralToken, borrowToken],
       });
 
-      const hfValue = Number(formatUnits(healthFactor as bigint, 18));
+      const hfValue = Number(formatUnits(healthFactorResult as unknown as bigint, 18));
       if (hfValue < 150) {
         result.warnings.push(`Health factor is low (${hfValue.toFixed(2)}%). Consider depositing more collateral.`);
       }
