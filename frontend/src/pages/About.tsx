@@ -4,6 +4,9 @@ import AboutHero from "../components/About/AboutHero";
 import AboutStats from "../components/About/AboutStats";
 import AboutValues from "../components/About/AboutValues";
 import AboutTeam from "../components/About/AboutTeam";
+import AboutPress from "../components/About/AboutPress";
+import AboutPartners from "../components/About/AboutPartners";
+import FooterSection from "../components/Landing/FooterSection";
 
 const About: React.FC = () => {
   return (
@@ -13,6 +16,9 @@ const About: React.FC = () => {
       <AboutStats />
       <AboutValues />
       <AboutTeam />
+      <AboutPress />
+      <AboutPartners />
+      <FooterSection />
     </div>
   );
 };
