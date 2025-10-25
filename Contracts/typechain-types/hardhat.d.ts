@@ -82,6 +82,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IUniversalOracle__factory>;
     getContractFactory(
+      name: "IPriceOracleV1",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IPriceOracleV1__factory>;
+    getContractFactory(
+      name: "ManualOracleAdapter",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ManualOracleAdapter__factory>;
+    getContractFactory(
       name: "OracleManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OracleManager__factory>;
@@ -196,6 +204,16 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IUniversalOracle>;
     getContractAt(
+      name: "IPriceOracleV1",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IPriceOracleV1>;
+    getContractAt(
+      name: "ManualOracleAdapter",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ManualOracleAdapter>;
+    getContractAt(
       name: "OracleManager",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -300,6 +318,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IUniversalOracle>;
     deployContract(
+      name: "IPriceOracleV1",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IPriceOracleV1>;
+    deployContract(
+      name: "ManualOracleAdapter",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ManualOracleAdapter>;
+    deployContract(
       name: "OracleManager",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.OracleManager>;
@@ -413,6 +439,16 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IUniversalOracle>;
+    deployContract(
+      name: "IPriceOracleV1",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IPriceOracleV1>;
+    deployContract(
+      name: "ManualOracleAdapter",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ManualOracleAdapter>;
     deployContract(
       name: "OracleManager",
       args: any[],

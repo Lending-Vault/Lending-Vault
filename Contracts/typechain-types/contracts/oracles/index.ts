@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as chainlinkOracleSol from "./ChainlinkOracle.sol";
 export type { chainlinkOracleSol };
+import type * as manualOracleAdapterSol from "./ManualOracleAdapter.sol";
+export type { manualOracleAdapterSol };
 export type { IUniversalOracle } from "./IUniversalOracle";
 export type { OracleManager } from "./OracleManager";
 export type { RedStoneOracle } from "./RedStoneOracle";

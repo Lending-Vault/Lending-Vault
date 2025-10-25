@@ -40,6 +40,10 @@ export type { ChainlinkOracle } from "./contracts/oracles/ChainlinkOracle.sol/Ch
 export { ChainlinkOracle__factory } from "./factories/contracts/oracles/ChainlinkOracle.sol/ChainlinkOracle__factory";
 export type { IUniversalOracle } from "./contracts/oracles/IUniversalOracle";
 export { IUniversalOracle__factory } from "./factories/contracts/oracles/IUniversalOracle__factory";
+export type { IPriceOracleV1 } from "./contracts/oracles/ManualOracleAdapter.sol/IPriceOracleV1";
+export { IPriceOracleV1__factory } from "./factories/contracts/oracles/ManualOracleAdapter.sol/IPriceOracleV1__factory";
+export type { ManualOracleAdapter } from "./contracts/oracles/ManualOracleAdapter.sol/ManualOracleAdapter";
+export { ManualOracleAdapter__factory } from "./factories/contracts/oracles/ManualOracleAdapter.sol/ManualOracleAdapter__factory";
 export type { OracleManager } from "./contracts/oracles/OracleManager";
 export { OracleManager__factory } from "./factories/contracts/oracles/OracleManager__factory";
 export type { RedStoneOracle } from "./contracts/oracles/RedStoneOracle";

@@ -1,8 +1,8 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/contracts/PriceOracle.sol": {
-      "lastModificationDate": 1760459785787,
+    "/home/george/Documents/team/Lending-Vault/Contracts/contracts/PriceOracle.sol": {
+      "lastModificationDate": 1761395187965,
       "contentHash": "26e5be413588efa5ffc96bd8a45385eb",
       "sourceName": "contracts/PriceOracle.sol",
       "solcConfig": {
@@ -40,8 +40,8 @@
         "PriceOracle"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/.pnpm/@openzeppelin+contracts@5.0.0/node_modules/@openzeppelin/contracts/access/Ownable.sol": {
-      "lastModificationDate": 1760683046803,
+    "/home/george/Documents/team/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/access/Ownable.sol": {
+      "lastModificationDate": 1760393516905,
       "contentHash": "d3c790edc9ccf808a17c5a6cd13614fd",
       "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
       "solcConfig": {
@@ -79,8 +79,8 @@
         "Ownable"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/.pnpm/@openzeppelin+contracts@5.0.0/node_modules/@openzeppelin/contracts/utils/Context.sol": {
-      "lastModificationDate": 1760683046800,
+    "/home/george/Documents/team/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/utils/Context.sol": {
+      "lastModificationDate": 1760393515693,
       "contentHash": "01c847e2af51f468cb66d9ed83bc3cec",
       "sourceName": "@openzeppelin/contracts/utils/Context.sol",
       "solcConfig": {
@@ -116,8 +116,8 @@
         "Context"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/.pnpm/@openzeppelin+contracts@5.0.0/node_modules/@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol": {
-      "lastModificationDate": 1760683046801,
+    "/home/george/Documents/team/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol": {
+      "lastModificationDate": 1760393516125,
       "contentHash": "273d8d24b06f67207dd5f35c3a0c1086",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol",
       "solcConfig": {
@@ -156,8 +156,8 @@
         "ERC20Burnable"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/.pnpm/@openzeppelin+contracts@5.0.0/node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol": {
-      "lastModificationDate": 1760683046801,
+    "/home/george/Documents/team/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol": {
+      "lastModificationDate": 1760393516111,
       "contentHash": "c6375ef25e84c90b3d15f9ec4eef218f",
       "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
       "solcConfig": {
@@ -198,8 +198,8 @@
         "ERC20"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/.pnpm/@openzeppelin+contracts@5.0.0/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol": {
-      "lastModificationDate": 1760683046802,
+    "/home/george/Documents/team/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+      "lastModificationDate": 1760393516659,
       "contentHash": "5517c8678c18eb1a8ba58810e7ca39ca",
       "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
       "solcConfig": {
@@ -235,8 +235,8 @@
         "IERC20"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/.pnpm/@openzeppelin+contracts@5.0.0/node_modules/@openzeppelin/contracts/interfaces/draft-IERC6093.sol": {
-      "lastModificationDate": 1760683046800,
+    "/home/george/Documents/team/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/interfaces/draft-IERC6093.sol": {
+      "lastModificationDate": 1760393515761,
       "contentHash": "4aefc698f77ecbace7f401257dfe182d",
       "sourceName": "@openzeppelin/contracts/interfaces/draft-IERC6093.sol",
       "solcConfig": {
@@ -274,8 +274,8 @@
         "IERC721Errors"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/.pnpm/@openzeppelin+contracts@5.0.0/node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol": {
-      "lastModificationDate": 1760683046802,
+    "/home/george/Documents/team/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol": {
+      "lastModificationDate": 1760393516663,
       "contentHash": "4c02fa6f7ae7b6c289cef80424f0c875",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
       "solcConfig": {
@@ -313,8 +313,8 @@
         "IERC20Metadata"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/.pnpm/@openzeppelin+contracts@5.0.0/node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol": {
-      "lastModificationDate": 1760683046803,
+    "/home/george/Documents/team/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol": {
+      "lastModificationDate": 1760393516988,
       "contentHash": "697fd27924863e77c17dace2179018b2",
       "sourceName": "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
       "solcConfig": {
@@ -354,8 +354,8 @@
         "SafeERC20"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/.pnpm/@openzeppelin+contracts@5.0.0/node_modules/@openzeppelin/contracts/utils/Address.sol": {
-      "lastModificationDate": 1760683046800,
+    "/home/george/Documents/team/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/utils/Address.sol": {
+      "lastModificationDate": 1760393515548,
       "contentHash": "79c699f80eb8a9b168cb34e37816f894",
       "sourceName": "@openzeppelin/contracts/utils/Address.sol",
       "solcConfig": {
@@ -391,8 +391,8 @@
         "Address"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/.pnpm/@openzeppelin+contracts@5.0.0/node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol": {
-      "lastModificationDate": 1760683046802,
+    "/home/george/Documents/team/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol": {
+      "lastModificationDate": 1760393516682,
       "contentHash": "da291753fa4641f2c5837bfc4aa4c01b",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol",
       "solcConfig": {
@@ -428,8 +428,8 @@
         "IERC20Permit"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/contracts/VaultManager.sol": {
-      "lastModificationDate": 1760680855956,
+    "/home/george/Documents/team/Lending-Vault/Contracts/contracts/VaultManager.sol": {
+      "lastModificationDate": 1761395187965,
       "contentHash": "4ff8e44ca5f448e784a0c9dbcaf9a4a3",
       "sourceName": "contracts/VaultManager.sol",
       "solcConfig": {
@@ -471,8 +471,8 @@
         "VaultManager"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/.pnpm/@openzeppelin+contracts@5.0.0/node_modules/@openzeppelin/contracts/utils/ReentrancyGuard.sol": {
-      "lastModificationDate": 1760683046803,
+    "/home/george/Documents/team/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/utils/ReentrancyGuard.sol": {
+      "lastModificationDate": 1760393516945,
       "contentHash": "a92331adac11b453a4de0323fc948119",
       "sourceName": "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
       "solcConfig": {
@@ -508,8 +508,8 @@
         "ReentrancyGuard"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/.pnpm/@openzeppelin+contracts@5.0.0/node_modules/@openzeppelin/contracts/utils/Pausable.sol": {
-      "lastModificationDate": 1760683046803,
+    "/home/george/Documents/team/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/utils/Pausable.sol": {
+      "lastModificationDate": 1760393516918,
       "contentHash": "24e52f6ef3868e6fca664a423140bee9",
       "sourceName": "@openzeppelin/contracts/utils/Pausable.sol",
       "solcConfig": {
@@ -547,8 +547,8 @@
         "Pausable"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/contracts/tokens/GMFOTToken.sol": {
-      "lastModificationDate": 1760459785789,
+    "/home/george/Documents/team/Lending-Vault/Contracts/contracts/tokens/GMFOTToken.sol": {
+      "lastModificationDate": 1761395187967,
       "contentHash": "4522e8ec25659f7b7b5ac4cd5868f2db",
       "sourceName": "contracts/tokens/GMFOTToken.sol",
       "solcConfig": {
@@ -589,9 +589,9 @@
         "GMFOTToken"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/contracts/SavingsVault.sol": {
-      "lastModificationDate": 1760459785787,
-      "contentHash": "c63dd46552ddadb44c6d69d147959e85",
+    "/home/george/Documents/team/Lending-Vault/Contracts/contracts/SavingsVault.sol": {
+      "lastModificationDate": 1761400549070,
+      "contentHash": "e3a8fdb088633306978560a728f550a3",
       "sourceName": "contracts/SavingsVault.sol",
       "solcConfig": {
         "version": "0.8.20",
@@ -633,8 +633,8 @@
         "SavingsVault"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/contracts/mocks/MockERC20.sol": {
-      "lastModificationDate": 1760365848697,
+    "/home/george/Documents/team/Lending-Vault/Contracts/contracts/mocks/MockERC20.sol": {
+      "lastModificationDate": 1760383041348,
       "contentHash": "6bf338bfccf399e46be2b2b495f70bda",
       "sourceName": "contracts/mocks/MockERC20.sol",
       "solcConfig": {
@@ -672,8 +672,8 @@
         "MockERC20"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/contracts/oracles/RedStoneOracle.sol": {
-      "lastModificationDate": 1760459785788,
+    "/home/george/Documents/team/Lending-Vault/Contracts/contracts/oracles/RedStoneOracle.sol": {
+      "lastModificationDate": 1761395187967,
       "contentHash": "78b20d85b999d6ef8cfe24a5b44de26a",
       "sourceName": "contracts/oracles/RedStoneOracle.sol",
       "solcConfig": {
@@ -712,8 +712,8 @@
         "RedStoneOracle"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/contracts/oracles/IUniversalOracle.sol": {
-      "lastModificationDate": 1760459785788,
+    "/home/george/Documents/team/Lending-Vault/Contracts/contracts/oracles/IUniversalOracle.sol": {
+      "lastModificationDate": 1761395187967,
       "contentHash": "87d302e7eac28472ef48dde286da99f5",
       "sourceName": "contracts/oracles/IUniversalOracle.sol",
       "solcConfig": {
@@ -749,8 +749,8 @@
         "IUniversalOracle"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/contracts/oracles/OracleManager.sol": {
-      "lastModificationDate": 1760683556741,
+    "/home/george/Documents/team/Lending-Vault/Contracts/contracts/oracles/OracleManager.sol": {
+      "lastModificationDate": 1761395187967,
       "contentHash": "727d7168c2ea06111a56ed89836b31f1",
       "sourceName": "contracts/oracles/OracleManager.sol",
       "solcConfig": {
@@ -789,8 +789,49 @@
         "OracleManager"
       ]
     },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/contracts/oracles/ChainlinkOracle.sol": {
-      "lastModificationDate": 1760459785788,
+    "/home/george/Documents/team/Lending-Vault/Contracts/contracts/oracles/ManualOracleAdapter.sol": {
+      "lastModificationDate": 1761395187967,
+      "contentHash": "9674a6528b21b722d527ff3082bfe092",
+      "sourceName": "contracts/oracles/ManualOracleAdapter.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IUniversalOracle.sol",
+        "@openzeppelin/contracts/access/Ownable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IPriceOracleV1",
+        "ManualOracleAdapter"
+      ]
+    },
+    "/home/george/Documents/team/Lending-Vault/Contracts/contracts/oracles/ChainlinkOracle.sol": {
+      "lastModificationDate": 1761395187966,
       "contentHash": "3f56dffbe776228ae3ec2ff361f5731c",
       "sourceName": "contracts/oracles/ChainlinkOracle.sol",
       "solcConfig": {
@@ -828,470 +869,6 @@
       "artifacts": [
         "AggregatorV3Interface",
         "ChainlinkOracle"
-      ]
-    },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/access/Ownable.sol": {
-      "lastModificationDate": 1760880256151,
-      "contentHash": "d3c790edc9ccf808a17c5a6cd13614fd",
-      "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": false,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../utils/Context.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "Ownable"
-      ]
-    },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/utils/Context.sol": {
-      "lastModificationDate": 1760880238390,
-      "contentHash": "01c847e2af51f468cb66d9ed83bc3cec",
-      "sourceName": "@openzeppelin/contracts/utils/Context.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": false,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "Context"
-      ]
-    },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol": {
-      "lastModificationDate": 1760880255434,
-      "contentHash": "273d8d24b06f67207dd5f35c3a0c1086",
-      "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": false,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../ERC20.sol",
-        "../../../utils/Context.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "ERC20Burnable"
-      ]
-    },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol": {
-      "lastModificationDate": 1760880255433,
-      "contentHash": "c6375ef25e84c90b3d15f9ec4eef218f",
-      "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": false,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./IERC20.sol",
-        "./extensions/IERC20Metadata.sol",
-        "../../utils/Context.sol",
-        "../../interfaces/draft-IERC6093.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "ERC20"
-      ]
-    },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol": {
-      "lastModificationDate": 1760880255851,
-      "contentHash": "5517c8678c18eb1a8ba58810e7ca39ca",
-      "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": false,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "IERC20"
-      ]
-    },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/interfaces/draft-IERC6093.sol": {
-      "lastModificationDate": 1760880238474,
-      "contentHash": "4aefc698f77ecbace7f401257dfe182d",
-      "sourceName": "@openzeppelin/contracts/interfaces/draft-IERC6093.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": false,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "IERC1155Errors",
-        "IERC20Errors",
-        "IERC721Errors"
-      ]
-    },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol": {
-      "lastModificationDate": 1760880255852,
-      "contentHash": "4c02fa6f7ae7b6c289cef80424f0c875",
-      "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": false,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../IERC20.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "IERC20Metadata"
-      ]
-    },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol": {
-      "lastModificationDate": 1760880256179,
-      "contentHash": "697fd27924863e77c17dace2179018b2",
-      "sourceName": "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": false,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../IERC20.sol",
-        "../extensions/IERC20Permit.sol",
-        "../../../utils/Address.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "SafeERC20"
-      ]
-    },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/utils/Address.sol": {
-      "lastModificationDate": 1760880238152,
-      "contentHash": "79c699f80eb8a9b168cb34e37816f894",
-      "sourceName": "@openzeppelin/contracts/utils/Address.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": false,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "Address"
-      ]
-    },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol": {
-      "lastModificationDate": 1760880255880,
-      "contentHash": "da291753fa4641f2c5837bfc4aa4c01b",
-      "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": false,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "IERC20Permit"
-      ]
-    },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/utils/ReentrancyGuard.sol": {
-      "lastModificationDate": 1760880256175,
-      "contentHash": "a92331adac11b453a4de0323fc948119",
-      "sourceName": "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": false,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "ReentrancyGuard"
-      ]
-    },
-    "/home/godbrand/Documents/GitHub/Lending-Vault/Contracts/node_modules/@openzeppelin/contracts/utils/Pausable.sol": {
-      "lastModificationDate": 1760880256154,
-      "contentHash": "24e52f6ef3868e6fca664a423140bee9",
-      "sourceName": "@openzeppelin/contracts/utils/Pausable.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": false,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../utils/Context.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "Pausable"
       ]
     }
   }

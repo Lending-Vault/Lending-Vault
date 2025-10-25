@@ -32,7 +32,6 @@ export declare namespace SavingsVault {
     lockEndTime: BigNumberish;
     lockPeriod: BigNumberish;
     withdrawn: boolean;
-    stablecoinInterest: BigNumberish;
     gftReward: BigNumberish;
   };
 
@@ -44,7 +43,6 @@ export declare namespace SavingsVault {
     lockEndTime: bigint,
     lockPeriod: bigint,
     withdrawn: boolean,
-    stablecoinInterest: bigint,
     gftReward: bigint
   ] & {
     positionId: bigint;
@@ -54,7 +52,6 @@ export declare namespace SavingsVault {
     lockEndTime: bigint;
     lockPeriod: bigint;
     withdrawn: boolean;
-    stablecoinInterest: bigint;
     gftReward: bigint;
   };
 }
@@ -62,7 +59,6 @@ export declare namespace SavingsVault {
 export interface SavingsVaultInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "ANNUAL_INTEREST_RATE"
       | "ANNUAL_PERIOD"
       | "BASIS_POINTS"
       | "QUARTERLY_PERIOD"
@@ -81,12 +77,10 @@ export interface SavingsVaultInterface extends Interface {
       | "owner"
       | "pause"
       | "paused"
-      | "protocolTreasury"
       | "quarterlyGftReward"
       | "removeStablecoin"
       | "renounceOwnership"
       | "semiAnnualGftReward"
-      | "setProtocolTreasury"
       | "supportedStablecoins"
       | "totalPositions"
       | "totalSavings"
@@ -112,10 +106,6 @@ export interface SavingsVaultInterface extends Interface {
       | "Withdrawn"
   ): EventFragment;
 
-  encodeFunctionData(
-    functionFragment: "ANNUAL_INTEREST_RATE",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "ANNUAL_PERIOD",
     values?: undefined
@@ -177,10 +167,6 @@ export interface SavingsVaultInterface extends Interface {
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(functionFragment: "paused", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "protocolTreasury",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "quarterlyGftReward",
     values?: undefined
   ): string;
@@ -195,10 +181,6 @@ export interface SavingsVaultInterface extends Interface {
   encodeFunctionData(
     functionFragment: "semiAnnualGftReward",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setProtocolTreasury",
-    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "supportedStablecoins",
@@ -238,10 +220,6 @@ export interface SavingsVaultInterface extends Interface {
     values: [BigNumberish]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "ANNUAL_INTEREST_RATE",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "ANNUAL_PERIOD",
     data: BytesLike
@@ -300,10 +278,6 @@ export interface SavingsVaultInterface extends Interface {
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "protocolTreasury",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "quarterlyGftReward",
     data: BytesLike
   ): Result;
@@ -317,10 +291,6 @@ export interface SavingsVaultInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "semiAnnualGftReward",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setProtocolTreasury",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -487,7 +457,6 @@ export namespace WithdrawnEvent {
     user: AddressLike,
     positionId: BigNumberish,
     principal: BigNumberish,
-    stablecoinInterest: BigNumberish,
     gftReward: BigNumberish,
     isEarlyWithdrawal: boolean
   ];
@@ -495,7 +464,6 @@ export namespace WithdrawnEvent {
     user: string,
     positionId: bigint,
     principal: bigint,
-    stablecoinInterest: bigint,
     gftReward: bigint,
     isEarlyWithdrawal: boolean
   ];
@@ -503,7 +471,6 @@ export namespace WithdrawnEvent {
     user: string;
     positionId: bigint;
     principal: bigint;
-    stablecoinInterest: bigint;
     gftReward: bigint;
     isEarlyWithdrawal: boolean;
   }
@@ -555,8 +522,6 @@ export interface SavingsVault extends BaseContract {
   removeAllListeners<TCEvent extends TypedContractEvent>(
     event?: TCEvent
   ): Promise<this>;
-
-  ANNUAL_INTEREST_RATE: TypedContractMethod<[], [bigint], "view">;
 
   ANNUAL_PERIOD: TypedContractMethod<[], [bigint], "view">;
 
@@ -628,8 +593,6 @@ export interface SavingsVault extends BaseContract {
 
   paused: TypedContractMethod<[], [boolean], "view">;
 
-  protocolTreasury: TypedContractMethod<[], [string], "view">;
-
   quarterlyGftReward: TypedContractMethod<[], [bigint], "view">;
 
   removeStablecoin: TypedContractMethod<
@@ -641,12 +604,6 @@ export interface SavingsVault extends BaseContract {
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
   semiAnnualGftReward: TypedContractMethod<[], [bigint], "view">;
-
-  setProtocolTreasury: TypedContractMethod<
-    [_treasury: AddressLike],
-    [void],
-    "nonpayable"
-  >;
 
   supportedStablecoins: TypedContractMethod<
     [arg0: AddressLike],
@@ -687,17 +644,7 @@ export interface SavingsVault extends BaseContract {
   userPositions: TypedContractMethod<
     [arg0: AddressLike, arg1: BigNumberish],
     [
-      [
-        bigint,
-        string,
-        bigint,
-        bigint,
-        bigint,
-        bigint,
-        boolean,
-        bigint,
-        bigint
-      ] & {
+      [bigint, string, bigint, bigint, bigint, bigint, boolean, bigint] & {
         positionId: bigint;
         stablecoin: string;
         principal: bigint;
@@ -705,7 +652,6 @@ export interface SavingsVault extends BaseContract {
         lockEndTime: bigint;
         lockPeriod: bigint;
         withdrawn: boolean;
-        stablecoinInterest: bigint;
         gftReward: bigint;
       }
     ],
@@ -722,9 +668,6 @@ export interface SavingsVault extends BaseContract {
     key: string | FunctionFragment
   ): T;
 
-  getFunction(
-    nameOrSignature: "ANNUAL_INTEREST_RATE"
-  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "ANNUAL_PERIOD"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -802,9 +745,6 @@ export interface SavingsVault extends BaseContract {
     nameOrSignature: "paused"
   ): TypedContractMethod<[], [boolean], "view">;
   getFunction(
-    nameOrSignature: "protocolTreasury"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
     nameOrSignature: "quarterlyGftReward"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
@@ -816,9 +756,6 @@ export interface SavingsVault extends BaseContract {
   getFunction(
     nameOrSignature: "semiAnnualGftReward"
   ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "setProtocolTreasury"
-  ): TypedContractMethod<[_treasury: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "supportedStablecoins"
   ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
@@ -856,17 +793,7 @@ export interface SavingsVault extends BaseContract {
   ): TypedContractMethod<
     [arg0: AddressLike, arg1: BigNumberish],
     [
-      [
-        bigint,
-        string,
-        bigint,
-        bigint,
-        bigint,
-        bigint,
-        boolean,
-        bigint,
-        bigint
-      ] & {
+      [bigint, string, bigint, bigint, bigint, bigint, boolean, bigint] & {
         positionId: bigint;
         stablecoin: string;
         principal: bigint;
@@ -874,7 +801,6 @@ export interface SavingsVault extends BaseContract {
         lockEndTime: bigint;
         lockPeriod: bigint;
         withdrawn: boolean;
-        stablecoinInterest: bigint;
         gftReward: bigint;
       }
     ],
@@ -1037,7 +963,7 @@ export interface SavingsVault extends BaseContract {
       UnpausedEvent.OutputObject
     >;
 
-    "Withdrawn(address,uint256,uint256,uint256,uint256,bool)": TypedContractEvent<
+    "Withdrawn(address,uint256,uint256,uint256,bool)": TypedContractEvent<
       WithdrawnEvent.InputTuple,
       WithdrawnEvent.OutputTuple,
       WithdrawnEvent.OutputObject
