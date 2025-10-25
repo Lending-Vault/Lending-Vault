@@ -13,21 +13,17 @@ contract SavingsVault is ReentrancyGuard, Pausable, Ownable {
 
     GMFOTToken public immutable gftToken;
 
-    address public protocolTreasury;
-
     uint256 public constant BASIS_POINTS = 10000;
-
-    uint256 public constant ANNUAL_INTEREST_RATE = 200;
 
     uint256 public constant QUARTERLY_PERIOD = 90 days;
     uint256 public constant SEMI_ANNUAL_PERIOD = 180 days;
     uint256 public constant ANNUAL_PERIOD = 365 days;
 
-    uint256 public quarterlyGftReward = 1000 * 10**18; // 1000 GFT
+    uint256 public quarterlyGftReward = 100 * 10**18; // 100 GFT
     uint256 public semiAnnualGftReward = 1000 * 10**18; // 1000 GFT
-    uint256 public annualGftReward = 1000 * 10**18; // 1000 GFT
+    uint256 public annualGftReward = 10000 * 10**18; // 10000 GFT
 
-    uint256 public earlyWithdrawalPenalty = 1000;
+    uint256 public earlyWithdrawalPenalty = 3;
 
     uint256 public minimumDeposit = 100 * 10**18;
 
@@ -55,7 +51,6 @@ contract SavingsVault is ReentrancyGuard, Pausable, Ownable {
         uint256 lockEndTime;
         LockPeriod lockPeriod;
         bool withdrawn;
-        uint256 stablecoinInterest;
         uint256 gftReward;
     }
 
@@ -73,7 +68,6 @@ contract SavingsVault is ReentrancyGuard, Pausable, Ownable {
         address indexed user,
         uint256 indexed positionId,
         uint256 principal,
-        uint256 stablecoinInterest,
         uint256 gftReward,
         bool isEarlyWithdrawal
     );
@@ -89,17 +83,14 @@ contract SavingsVault is ReentrancyGuard, Pausable, Ownable {
     error SavingsVault__InvalidLockPeriod();
     error SavingsVault__PositionNotFound();
     error SavingsVault__PositionAlreadyWithdrawn();
-    error SavingsVault__LockPeriodNotExpired();
-    error SavingsVault__InsufficientTreasuryBalance();
     error SavingsVault__ZeroAddress();
     error SavingsVault__InvalidPenalty();
 
-    constructor(address _gftToken, address _protocolTreasury) Ownable(msg.sender) {
-        if (_gftToken == address(0) || _protocolTreasury == address(0)) {
+    constructor(address _gftToken) Ownable(msg.sender) {
+        if (_gftToken == address(0)) {
             revert SavingsVault__ZeroAddress();
         }
         gftToken = GMFOTToken(_gftToken);
-        protocolTreasury = _protocolTreasury;
     }
 
     function addStablecoin(address stablecoin) external onlyOwner {
@@ -131,11 +122,6 @@ contract SavingsVault is ReentrancyGuard, Pausable, Ownable {
         emit EarlyWithdrawalPenaltyUpdated(_penalty);
     }
 
-    function setProtocolTreasury(address _treasury) external onlyOwner {
-        if (_treasury == address(0)) revert SavingsVault__ZeroAddress();
-        protocolTreasury = _treasury;
-    }
-
     function deposit(
         address stablecoin,
         uint256 amount,
@@ -149,7 +135,7 @@ contract SavingsVault is ReentrancyGuard, Pausable, Ownable {
         uint256 lockEndTime = block.timestamp + lockDuration;
 
         // Calculate rewards
-        (uint256 stablecoinInterest, uint256 gftReward) = _calculateRewards(amount, lockPeriod);
+        uint256 gftReward = _calculateRewards(lockPeriod);
 
         // Create position
         uint256 positionId = totalPositions++;
@@ -161,7 +147,6 @@ contract SavingsVault is ReentrancyGuard, Pausable, Ownable {
             lockEndTime: lockEndTime,
             lockPeriod: lockPeriod,
             withdrawn: false,
-            stablecoinInterest: stablecoinInterest,
             gftReward: gftReward
         });
 
@@ -187,17 +172,15 @@ contract SavingsVault is ReentrancyGuard, Pausable, Ownable {
 
         bool isEarlyWithdrawal = block.timestamp < position.lockEndTime;
         uint256 principalToReturn = position.principal;
-        uint256 stablecoinInterest = 0;
         uint256 gftReward = 0;
 
         if (isEarlyWithdrawal) {
             // Apply early withdrawal penalty
             uint256 penalty = (principalToReturn * earlyWithdrawalPenalty) / BASIS_POINTS;
             principalToReturn -= penalty;
-            // No interest or GFT rewards for early withdrawal
+            // No GFT rewards for early withdrawal
         } else {
             // Full withdrawal with rewards
-            stablecoinInterest = position.stablecoinInterest;
             gftReward = position.gftReward;
         }
 
@@ -208,14 +191,6 @@ contract SavingsVault is ReentrancyGuard, Pausable, Ownable {
         // Transfer principal back to user
         IERC20(position.stablecoin).safeTransfer(msg.sender, principalToReturn);
 
-        // Transfer stablecoin interest if applicable (from treasury)
-        if (stablecoinInterest > 0) {
-            if (IERC20(position.stablecoin).balanceOf(protocolTreasury) < stablecoinInterest) {
-                revert SavingsVault__InsufficientTreasuryBalance();
-            }
-            IERC20(position.stablecoin).safeTransferFrom(protocolTreasury, msg.sender, stablecoinInterest);
-        }
-
         // Mint GFT rewards if applicable
         if (gftReward > 0) {
             gftToken.mint(msg.sender, gftReward);
@@ -225,7 +200,6 @@ contract SavingsVault is ReentrancyGuard, Pausable, Ownable {
             msg.sender,
             position.positionId,
             principalToReturn,
-            stablecoinInterest,
             gftReward,
             isEarlyWithdrawal
         );
@@ -244,7 +218,7 @@ contract SavingsVault is ReentrancyGuard, Pausable, Ownable {
         // Return full principal (no penalty in emergency)
         IERC20(position.stablecoin).safeTransfer(user, position.principal);
 
-        emit Withdrawn(user, position.positionId, position.principal, 0, 0, true);
+        emit Withdrawn(user, position.positionId, position.principal, 0, true);
     }
 
 
@@ -279,20 +253,16 @@ contract SavingsVault is ReentrancyGuard, Pausable, Ownable {
     }
 
 
-    function _calculateRewards(uint256 amount, LockPeriod lockPeriod)
+    function _calculateRewards(LockPeriod lockPeriod)
         internal
         view
-        returns (uint256 stablecoinInterest, uint256 gftReward)
+        returns (uint256 gftReward)
     {
         if (lockPeriod == LockPeriod.QUARTERLY) {
-            stablecoinInterest = 0; // No stablecoin interest for quarterly
             gftReward = quarterlyGftReward;
         } else if (lockPeriod == LockPeriod.SEMI_ANNUAL) {
-            stablecoinInterest = 0; // No stablecoin interest for semi-annual
             gftReward = semiAnnualGftReward;
         } else if (lockPeriod == LockPeriod.ANNUAL) {
-            // 2% annual interest
-            stablecoinInterest = (amount * ANNUAL_INTEREST_RATE) / BASIS_POINTS;
             gftReward = annualGftReward;
         }
     }
