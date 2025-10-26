@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as chainlinkOracleSol from "./ChainlinkOracle.sol";
+export * as manualOracleAdapterSol from "./ManualOracleAdapter.sol";
 export { IUniversalOracle__factory } from "./IUniversalOracle__factory";
 export { OracleManager__factory } from "./OracleManager__factory";
 export { RedStoneOracle__factory } from "./RedStoneOracle__factory";
