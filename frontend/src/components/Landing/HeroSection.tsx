@@ -29,7 +29,7 @@ const HeroSection: React.FC = () => {
 
           {/* Subheading */}
           <p className="text-xl md:text-2xl text-dark-textMuted mb-12 max-w-3xl mx-auto leading-relaxed">
-            A decentralized lending platform where you can borrow and lend assets across different blockchain networks with competitive rates and enhanced security.
+            A lending platform for the purpose of managing and lending assets across different blockchain networks with competitive rates and enhanced security.
           </p>
 
           {/* CTA Buttons */}
@@ -40,16 +40,13 @@ const HeroSection: React.FC = () => {
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link to="">
+            <Link to="https://github.com/Lending-Vault/Lending-Vault/tree/main">
              <Button variant="secondary" size="lg">
               <TrendingUp className="w-5 h-5 mr-2" />
               View Documentation
             </Button>
             </Link>
-            <Button variant="secondary" size="lg">
-              <TrendingUp className="w-5 h-5 mr-2" />
-              View Documentation
-            </Button>
+            
           </div>
 
           {/* Feature highlights */}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 const LandingHeader: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -20,7 +20,9 @@ const LandingHeader: React.FC = () => {
     { name: 'Features', href: '#features' },
     { name: 'How it Works', href: '#how-it-works' },
     { name: 'Statistics', href: '#stats' },
-    { name: 'Documentation', href: '#docs' }
+    { name: 'About', href: '#about-stats' },
+    { name: 'Team', href: '#about-team' },
+   
   ];
 
   return (

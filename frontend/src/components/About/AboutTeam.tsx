@@ -3,21 +3,26 @@ import { FaFacebookF, FaTwitter, FaInstagram } from "react-icons/fa";
 
 const team = [
   {
-    name: "Sola",
-    role: "Founder & Product Lead",
+    name: "Adebayo Muhammed",
+    role: "Founder",
   },
   {
     name: "Chibuike Chijioke",
-    role: "Fullstack Developer",
-  },
-  {
-    name: "Yetunde",
-    role: "Blockchain Research Analyst",
-  },
-  {
-    name: "Sarah",
     role: "Frontend Developer",
   },
+  {
+    name: "Barakat Yetunde",
+    role: "Frontend Developer",
+  },
+  {
+    name: "George Chisom",
+    role: "Smart contract Developer",
+  },
+  {
+    name: "Eregha Thompson",
+    role: "Frontend Developer",
+  },
+
 ];
 
 const AboutTeam: React.FC = () => {
@@ -27,7 +32,7 @@ const AboutTeam: React.FC = () => {
         <h2 className="text-4xl md:text-5xl font-bold mb-10">Meet the Team</h2>
 
         <p className="text-gray-400 max-w-3xl mx-auto mb-16 text-lg">
-          A passionate team driving innovation in decentralized finance with
+          A passionate team driving innovation in finance with
           transparency, scalability, and trust.
         </p>
 

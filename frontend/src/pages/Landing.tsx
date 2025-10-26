@@ -1,10 +1,14 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import LandingHeader from '../components/Landing/LandingHeader';
 import HeroSection from '../components/Landing/HeroSection';
 import FeaturesSection from '../components/Landing/FeaturesSection';
 import HowItWorksSection from '../components/Landing/HowItWorksSection';
 import StatsSection from '../components/Landing/StatsSection';
+import AboutStats from '../components/About/AboutStats';
+import AboutValues from '../components/About/AboutValues';
+import AboutTeam from '../components/About/AboutTeam';
+import AboutPress from '../components/About/AboutPress';
+// import AboutPartners from '../components/About/AboutPartners';
 import FooterSection from '../components/Landing/FooterSection';
 
 const Landing: React.FC = () => {
@@ -45,6 +49,21 @@ const Landing: React.FC = () => {
         <div id="stats">
           <StatsSection />
         </div>
+        <div id="about-stats">
+          <AboutStats />
+        </div>
+        <div id="about-values">
+          <AboutValues />
+        </div>
+        <div id="about-team">
+          <AboutTeam />
+        </div>
+        <div id="about-press">
+          <AboutPress />
+        </div>
+        {/* <div id="about-partners">
+          <AboutPartners />
+        </div> */}
       </main>
       
       <FooterSection />
