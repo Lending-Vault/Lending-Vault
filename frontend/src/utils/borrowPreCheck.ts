@@ -1,5 +1,5 @@
 // Utility functions to pre-check borrow conditions
-import { readContract, getAccount } from '@wagmi/core';
+import { readContract, getAccount } from 'wagmi/actions';
 import { config } from '../config/wagmi';
 import { getContractAddresses } from '../config/contracts';
 import { VaultManagerABI } from '../abis';
