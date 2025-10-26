@@ -98,14 +98,14 @@ const HowItWorksSection: React.FC = () => {
               </li>
             </ul>
             <Button variant="secondary" className="w-full">
-              Start Earning Yield
+              coming soon...
             </Button>
           </div>
 
           {/* Right Column - For Borrowers */}
           <div className="glass-strong p-8 rounded-2xl border border-success-500/20">
             <h3 className="text-2xl font-bold text-white mb-6">
-              For <span className="text-transparent bg-clip-text bg-gradient-to-r from-success-400 to-success-600">Borrowers</span>
+              For <span className=" bg-clip-text bg-gradient-to-r from-success-400 to-success-600">Borrowers</span>
             </h3>
             <ul className="space-y-4 mb-6">
               <li className="flex items-start">

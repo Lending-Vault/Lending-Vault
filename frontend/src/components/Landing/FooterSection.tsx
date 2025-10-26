@@ -46,8 +46,8 @@ const FooterSection: React.FC = () => {
             <div className="lg:col-span-2">
               <div className="mb-6">
                 <h3 className="text-2xl font-bold text-white mb-2">
-                  <span className="text-white">Lending</span>
-                  <span className="gradient-lisk-strong"> Vault</span>
+                  <span className="text-white">Liquid</span>
+                  <span className="gradient-lisk-strong">Vault</span>
                 </h3>
                 <p className="text-dark-textMuted max-w-sm">
                   A decentralized lending platform where you can borrow and lend assets across different blockchain networks with competitive rates and enhanced security.

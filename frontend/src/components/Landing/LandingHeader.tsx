@@ -20,7 +20,9 @@ const LandingHeader: React.FC = () => {
     { name: 'Features', href: '#features' },
     { name: 'How it Works', href: '#how-it-works' },
     { name: 'Statistics', href: '#stats' },
-    { name: 'Documentation', href: '#docs' }
+    { name: 'About', href: '#about-stats' },
+    { name: 'Team', href: '#about-team' },
+   
   ];
 
   return (
