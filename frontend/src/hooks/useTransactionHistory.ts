@@ -22,6 +22,18 @@ export function useTransactionHistory(options: TransactionHistoryOptions = {}) {
 
   const { fromBlock = BigInt(0), maxTransactions = 50 } = options;
 
+  // Determine block range limit based on RPC provider
+  const getBlockRangeLimit = useCallback(() => {
+    if (chainId === 4202) {
+      return 100000n; // Lisk Sepolia
+    } else if (chainId === 11155111) {
+      // Check if using drpc.org for Ethereum Sepolia
+      const rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL || 'https://sepolia.drpc.org';
+      return rpcUrl.includes('drpc.org') ? 10000n : 50000n;
+    }
+    return 10000n; // Default conservative limit
+  }, [chainId]);
+
   useEffect(() => {
     if (!address || !publicClient || !contractAddresses?.VaultManager) {
       setTransactions([]);
@@ -38,9 +50,10 @@ export function useTransactionHistory(options: TransactionHistoryOptions = {}) {
 
         // Get the latest block number
         const latestBlock = await publicClient.getBlockNumber();
+        const blockRangeLimit = getBlockRangeLimit();
 
-        // Reduce block range to avoid RPC overload (1000 blocks instead of 10000)
-        const startBlock = fromBlock > 0n ? fromBlock : latestBlock - 1000n;
+        // Use the smaller of: user-specified fromBlock, or latestBlock - blockRangeLimit
+        const startBlock = fromBlock > 0n ? fromBlock : latestBlock - blockRangeLimit;
 
         const [depositLogs, withdrawLogs, borrowLogs, repayLogs] = await Promise.all([
           // CollateralDeposited(address indexed user, address indexed token, uint256 amount)
@@ -160,7 +173,7 @@ export function useTransactionHistory(options: TransactionHistoryOptions = {}) {
     };
 
     fetchTransactions();
-  }, [address, chainId, publicClient, contractAddresses, fromBlock, maxTransactions, shouldRefetch]);
+  }, [address, chainId, publicClient, contractAddresses, fromBlock, maxTransactions, shouldRefetch, getBlockRangeLimit]);
 
   // Refetch function (memoized to prevent infinite loops)
   const refetch = useCallback(() => {
