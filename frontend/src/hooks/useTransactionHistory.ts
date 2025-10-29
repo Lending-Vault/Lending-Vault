@@ -158,9 +158,13 @@ export function useTransactionHistory(options: TransactionHistoryOptions = {}) {
           if (tx) allTransactions.push(tx);
         }
 
-        // Sort by block number (newest first) and limit
+        // Sort by timestamp if available, otherwise by block number (newest first) and limit
         const sortedTxs = allTransactions
-          .sort((a, b) => Number(b.blockNumber || 0) - Number(a.blockNumber || 0))
+          .sort((a, b) => {
+            const timestampA = a.timestamp || Number(a.blockNumber || 0);
+            const timestampB = b.timestamp || Number(b.blockNumber || 0);
+            return timestampB - timestampA;
+          })
           .slice(0, maxTransactions);
 
         setTransactions(sortedTxs);
@@ -228,6 +232,7 @@ function processLog(
       txHash: `${log.transactionHash.slice(0, 6)}...${log.transactionHash.slice(-4)}`,
       fullTxHash: log.transactionHash as string,
       blockNumber: log.blockNumber as bigint,
+      timestamp: Date.now(), // Use current time as fallback since we don't fetch block timestamp
     };
   } catch (err) {
     console.error('❌ Error processing log:', err);

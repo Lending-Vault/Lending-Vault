@@ -63,16 +63,19 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
     }
   };
 
-  const handleWithdraw = () => {
+  const handleWithdraw = async () => {
     if (!canWithdraw) return;
     
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      onWithdraw?.(withdrawAmount);
-      onClose();
+    try {
+      await onWithdraw?.(withdrawAmount);
+      // Don't close modal immediately - let Dashboard handle it after transaction confirms
       setAmount('');
-    }, 2000);
+    } catch (error) {
+      console.error('Withdraw error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

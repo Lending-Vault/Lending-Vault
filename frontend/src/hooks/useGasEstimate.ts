@@ -20,10 +20,15 @@ export function useGasEstimate() {
    * Convert gas estimate to USD value
    */
   const convertGasToUSD = (gasEstimate: bigint, ethPriceUSD: number = 2000) => {
-    if (!gasEstimate || !gasPrice) return null;
+    if (!gasEstimate) return 0;
+    
+    // Use a default gas price if not available (typical Sepolia gas price)
+    // 20 gwei is a reasonable default for Sepolia testnet
+    const defaultGasPrice = BigInt(20000000000); // 20 gwei in wei
+    const actualGasPrice = gasPrice || defaultGasPrice;
     
     // Calculate gas cost in wei (gasLimit * gasPrice)
-    const gasCostWei = gasEstimate * gasPrice;
+    const gasCostWei = gasEstimate * actualGasPrice;
     
     // Convert to ETH
     const gasCostETH = parseFloat(formatUnits(gasCostWei, 18));
@@ -38,8 +43,6 @@ export function useGasEstimate() {
    * Get estimated gas cost for withdraw operation in USD
    */
   const getWithdrawGasEstimate = (ethPriceUSD: number = 2000) => {
-    if (!gasPrice) return null;
-    
     // Typical gas limit for withdraw operations: 80000 gas
     const estimatedGasLimit = BigInt(80000);
     const gasCostUSD = convertGasToUSD(estimatedGasLimit, ethPriceUSD);
@@ -51,8 +54,6 @@ export function useGasEstimate() {
    * Get estimated gas cost for deposit operation in USD
    */
   const getDepositGasEstimate = (ethPriceUSD: number = 2000) => {
-    if (!gasPrice) return null;
-    
     // Typical gas limit for deposit operations: 100000 gas
     const estimatedGasLimit = BigInt(100000);
     const gasCostUSD = convertGasToUSD(estimatedGasLimit, ethPriceUSD);
@@ -64,8 +65,6 @@ export function useGasEstimate() {
    * Get estimated gas cost for borrow operation in USD
    */
   const getBorrowGasEstimate = (ethPriceUSD: number = 2000) => {
-    if (!gasPrice) return null;
-    
     // Typical gas limit for borrow operations: 120000 gas
     const estimatedGasLimit = BigInt(120000);
     const gasCostUSD = convertGasToUSD(estimatedGasLimit, ethPriceUSD);
@@ -77,8 +76,6 @@ export function useGasEstimate() {
    * Get estimated gas cost for repay operation in USD
    */
   const getRepayGasEstimate = (ethPriceUSD: number = 2000) => {
-    if (!gasPrice) return null;
-    
     // Typical gas limit for repay operations: 90000 gas
     const estimatedGasLimit = BigInt(90000);
     const gasCostUSD = convertGasToUSD(estimatedGasLimit, ethPriceUSD);

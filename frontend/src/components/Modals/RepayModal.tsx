@@ -47,23 +47,31 @@ const RepayModal: React.FC<RepayModalProps> = ({
     setAmount(totalOwed.toFixed(2));
   };
 
-  const handleApprove = () => {
+  const handleApprove = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      // For repay, we need to approve first, then repay
+      // This is a simplified version - in reality you'd wait for approval tx to confirm
       setStep('confirm');
-    }, 2000);
+    } catch (error) {
+      console.error('Approval error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRepay = () => {
+  const handleRepay = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      onRepay?.(repayAmount);
-      onClose();
+    try {
+      await onRepay?.(repayAmount);
+      // Don't close modal immediately - let Dashboard handle it after transaction confirms
       setAmount('');
       setStep('input');
-    }, 2000);
+    } catch (error) {
+      console.error('Repay error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const isFullRepayment = repayAmount >= totalOwed;

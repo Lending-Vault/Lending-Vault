@@ -30,7 +30,7 @@ const DepositModal: React.FC<DepositModalProps> = ({
   const [amount, setAmount] = useState('');
 
   // Get user's native ETH balance
-  const { balance, refetch: refetchBalance } = useNativeBalance();
+  const { balance } = useNativeBalance();
   
   // Use gas estimation hook
   const { getDepositGasEstimate } = useGasEstimate();
@@ -53,8 +53,7 @@ const DepositModal: React.FC<DepositModalProps> = ({
   const handleDeposit = async () => {
     try {
       await onDeposit?.(depositAmount);
-      refetchBalance();
-      onClose();
+      // Don't close modal immediately - let Dashboard handle it after transaction confirms
       // Reset
       setAmount('');
     } catch (error) {
@@ -108,7 +107,7 @@ const DepositModal: React.FC<DepositModalProps> = ({
           <div className="flex justify-between items-center">
             <span className="text-sm text-dark-textMuted">Estimated Gas Fee</span>
             <span className="text-sm font-semibold text-white">
-              {estimatedGasUSD ? `~$${estimatedGasUSD.toFixed(2)}` : 'Loading...'}
+              {estimatedGasUSD !== null ? `~$${estimatedGasUSD.toFixed(2)}` : 'Calculating...'}
             </span>
           </div>
         </div>
