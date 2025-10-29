@@ -5,6 +5,7 @@ import Modal from '../UI/Modal';
 import Input from '../UI/Input';
 import Button from '../UI/Button';
 import InfoBox from '../UI/InfoBox';
+import { useGasEstimate } from '../../hooks/useGasEstimate';
 
 interface WithdrawModalProps {
   isOpen: boolean;
@@ -31,6 +32,10 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
 }) => {
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // Use gas estimation hook
+  const { getWithdrawGasEstimate } = useGasEstimate();
+  const estimatedGasUSD = getWithdrawGasEstimate();
 
   const withdrawAmount = parseFloat(amount) || 0;
   const withdrawValue = withdrawAmount * tokenPrice;
@@ -185,7 +190,9 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
         <div className="bg-dark-bg border border-dark-border rounded-lg p-4">
           <div className="flex justify-between items-center">
             <span className="text-sm text-dark-textMuted">Estimated Gas Fee</span>
-            <span className="text-sm font-semibold text-white">~$4.00</span>
+            <span className="text-sm font-semibold text-white">
+              {estimatedGasUSD ? `~$${estimatedGasUSD.toFixed(2)}` : 'Loading...'}
+            </span>
           </div>
         </div>
 

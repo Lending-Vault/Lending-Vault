@@ -5,6 +5,7 @@ import Modal from '../UI/Modal';
 import Input from '../UI/Input';
 import Button from '../UI/Button';
 import InfoBox from '../UI/InfoBox';
+import { useGasEstimate } from '../../hooks';
 
 interface RepayModalProps {
   isOpen: boolean;
@@ -28,6 +29,10 @@ const RepayModal: React.FC<RepayModalProps> = ({
   const [amount, setAmount] = useState('');
   const [step, setStep] = useState<'input' | 'approve' | 'confirm'>('input');
   const [loading, setLoading] = useState(false);
+  
+  // Use gas estimation hook
+  const { getRepayGasEstimate } = useGasEstimate();
+  const estimatedGasUSD = getRepayGasEstimate();
 
   // Calculate accrued interest (simplified calculation)
   const daysSinceBorrow = Math.floor((Date.now() - borrowDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -155,7 +160,9 @@ const RepayModal: React.FC<RepayModalProps> = ({
         <div className="bg-dark-bg border border-dark-border rounded-lg p-4">
           <div className="flex justify-between items-center">
             <span className="text-sm text-dark-textMuted">Estimated Gas Fee</span>
-            <span className="text-sm font-semibold text-white">~$6.00</span>
+            <span className="text-sm font-semibold text-white">
+              {estimatedGasUSD ? `~$${estimatedGasUSD.toFixed(2)}` : 'Loading...'}
+            </span>
           </div>
         </div>
 

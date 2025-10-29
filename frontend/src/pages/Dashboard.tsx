@@ -1,5 +1,5 @@
 // src/pages/Dashboard.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Wallet, TrendingUp } from 'lucide-react';
 import { useAccount } from 'wagmi';
 import { formatUnits } from 'viem';
@@ -117,6 +117,65 @@ const Dashboard: React.FC = () => {
   const maxBorrowAmount = Math.max(0, collateralBalance * 0.5 - debtBalance);
 
   const borrowDate = new Date('2025-10-10');
+
+  // Memoized functions to get current data for modals
+  const getCurrentDepositData = useCallback(() => {
+    const isLiskActive = chainId === lisk.chainId;
+    const collateral = isLiskActive ? parseFloat(lisk.collateral) : parseFloat(ethereum.collateral);
+    const collateralUSD = collateral * ethPriceNum;
+    
+    return {
+      currentCollateral: collateralUSD,
+      currentCollateralAmount: collateral,
+      tokenSymbol: "ETH",
+      tokenPrice: ethPriceNum,
+    };
+  }, [chainId, lisk.collateral, ethereum.collateral, ethPriceNum]);
+
+  const getCurrentWithdrawData = useCallback(() => {
+    const isLiskActive = chainId === lisk.chainId;
+    const collateral = isLiskActive ? parseFloat(lisk.collateral) : parseFloat(ethereum.collateral);
+    const collateralUSD = collateral * ethPriceNum;
+    const debt = isLiskActive ? parseFloat(lisk.debt) : parseFloat(ethereum.debt);
+    const healthFactor = isLiskActive ? parseFloat(lisk.healthFactor) : parseFloat(ethereum.healthFactor);
+    
+    return {
+      currentCollateral: collateralUSD,
+      currentCollateralAmount: collateral,
+      currentDebt: debt,
+      currentHealthFactor: healthFactor * 100,
+      tokenSymbol: "ETH",
+      tokenPrice: ethPriceNum,
+    };
+  }, [chainId, lisk.collateral, ethereum.collateral, lisk.debt, ethereum.debt, lisk.healthFactor, ethereum.healthFactor, ethPriceNum]);
+
+  const getCurrentBorrowData = useCallback(() => {
+    const isLiskActive = chainId === lisk.chainId;
+    const collateral = isLiskActive ? parseFloat(lisk.collateral) : parseFloat(ethereum.collateral);
+    const collateralUSD = collateral * ethPriceNum;
+    const debt = isLiskActive ? parseFloat(lisk.debt) : parseFloat(ethereum.debt);
+    const healthFactor = isLiskActive ? parseFloat(lisk.healthFactor) : parseFloat(ethereum.healthFactor);
+    
+    return {
+      collateralValue: collateralUSD,
+      currentDebt: debt,
+      currentHealthFactor: healthFactor * 100,
+      maxBorrowAmount: maxBorrowAmount,
+      interestRate: 8,
+    };
+  }, [chainId, lisk.collateral, ethereum.collateral, lisk.debt, ethereum.debt, lisk.healthFactor, ethereum.healthFactor, ethPriceNum, maxBorrowAmount]);
+
+  const getCurrentRepayData = useCallback(() => {
+    const isLiskActive = chainId === lisk.chainId;
+    const debt = isLiskActive ? parseFloat(lisk.debt) : parseFloat(ethereum.debt);
+    
+    return {
+      currentDebt: debt,
+      debtToken: "GMFOT",
+      interestRate: 8,
+      borrowDate: borrowDate,
+    };
+  }, [chainId, lisk.debt, ethereum.debt, borrowDate]);
 
   const handleOpenModal = (type: ModalType) => {
     setOpenModal(type);
@@ -453,87 +512,32 @@ const Dashboard: React.FC = () => {
       {/* Bottom Navigation - Only show if wallet connected */}
       {isConnected && <BottomNav onOpenModal={handleOpenModal} />}
 
-      {/* Modals - Use active network's data */}
+      {/* Modals - Use memoized data functions */}
       <DepositModal
         isOpen={openModal === 'deposit'}
         onClose={() => setOpenModal(null)}
-        currentCollateral={
-          chainId === lisk.chainId
-            ? parseFloat(lisk.collateral) * ethPriceNum
-            : parseFloat(ethereum.collateral) * ethPriceNum
-        }
-        currentCollateralAmount={
-          chainId === lisk.chainId
-            ? parseFloat(lisk.collateral)
-            : parseFloat(ethereum.collateral)
-        }
-        tokenSymbol="ETH"
-        tokenPrice={ethPriceNum}
+        {...getCurrentDepositData()}
         onDeposit={handleDeposit}
       />
 
       <BorrowModal
         isOpen={openModal === 'borrow'}
         onClose={() => setOpenModal(null)}
-        collateralValue={
-          chainId === lisk.chainId
-            ? parseFloat(lisk.collateral) * ethPriceNum
-            : parseFloat(ethereum.collateral) * ethPriceNum
-        }
-        currentDebt={
-          chainId === lisk.chainId
-            ? parseFloat(lisk.debt)
-            : parseFloat(ethereum.debt)
-        }
-        currentHealthFactor={
-          chainId === lisk.chainId
-            ? parseFloat(lisk.healthFactor) * 100
-            : parseFloat(ethereum.healthFactor) * 100
-        }
-        maxBorrowAmount={maxBorrowAmount}
-        interestRate={8}
+        {...getCurrentBorrowData()}
         onBorrow={handleBorrow}
       />
 
       <RepayModal
         isOpen={openModal === 'repay'}
         onClose={() => setOpenModal(null)}
-        currentDebt={
-          chainId === lisk.chainId
-            ? parseFloat(lisk.debt)
-            : parseFloat(ethereum.debt)
-        }
-        debtToken="GMFOT"
-        interestRate={8}
-        borrowDate={borrowDate}
+        {...getCurrentRepayData()}
         onRepay={handleRepay}
       />
 
       <WithdrawModal
         isOpen={openModal === 'withdraw'}
         onClose={() => setOpenModal(null)}
-        currentCollateral={
-          chainId === lisk.chainId
-            ? parseFloat(lisk.collateral) * ethPriceNum
-            : parseFloat(ethereum.collateral) * ethPriceNum
-        }
-        currentCollateralAmount={
-          chainId === lisk.chainId
-            ? parseFloat(lisk.collateral)
-            : parseFloat(ethereum.collateral)
-        }
-        currentDebt={
-          chainId === lisk.chainId
-            ? parseFloat(lisk.debt)
-            : parseFloat(ethereum.debt)
-        }
-        currentHealthFactor={
-          chainId === lisk.chainId
-            ? parseFloat(lisk.healthFactor) * 100
-            : parseFloat(ethereum.healthFactor) * 100
-        }
-        tokenSymbol="ETH"
-        tokenPrice={ethPriceNum}
+        {...getCurrentWithdrawData()}
         onWithdraw={handleWithdraw}
       />
     </div>

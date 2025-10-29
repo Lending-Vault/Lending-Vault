@@ -6,6 +6,7 @@ import Input from '../UI/Input';
 import Button from '../UI/Button';
 import InfoBox from '../UI/InfoBox';
 import PriceDisplay from '../UI/PriceDisplay';
+import { useGasEstimate } from '../../hooks';
 import { getHealthFactorStatus } from '../../utils/mockData';
 import { diagnoseBorrowIssues, formatDiagnosticReport } from '../../utils/diagnoseBorrowIssue';
 
@@ -33,6 +34,10 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [diagnosticLoading, setDiagnosticLoading] = useState(false);
+  
+  // Use gas estimation hook
+  const { getBorrowGasEstimate } = useGasEstimate();
+  const estimatedGasUSD = getBorrowGasEstimate();
 
   const borrowAmount = parseFloat(amount) || 0;
   const newDebt = currentDebt + borrowAmount;
@@ -168,7 +173,9 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
         <div className="bg-dark-bg border border-dark-border rounded-lg p-4">
           <div className="flex justify-between items-center">
             <span className="text-sm text-dark-textMuted">Estimated Gas Fee</span>
-            <span className="text-sm font-semibold text-white">~$0.04</span>
+            <span className="text-sm font-semibold text-white">
+              {estimatedGasUSD ? `~$${estimatedGasUSD.toFixed(2)}` : 'Loading...'}
+            </span>
           </div>
         </div>
 
