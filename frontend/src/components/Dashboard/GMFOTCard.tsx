@@ -5,7 +5,7 @@ import Card from '../UI/Card';
 import Button from '../UI/Button';
 import { formatCurrency, formatNumber } from '../../utils/mockData';
 
-interface GMFOTCardProps {
+interface USDTCardProps {
   totalBorrowed: number;
   totalRepaid: number;
   currentDebt: number;
@@ -15,7 +15,7 @@ interface GMFOTCardProps {
   isConnected: boolean;
 }
 
-const GMFOTCard: React.FC<GMFOTCardProps> = ({
+const USDTCard: React.FC<USDTCardProps> = ({
   totalBorrowed,
   totalRepaid,
   currentDebt,
@@ -34,7 +34,7 @@ const GMFOTCard: React.FC<GMFOTCardProps> = ({
               <Coins className="w-6 h-6 text-primary-400" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-white">GMFOT Token</h3>
+              <h3 className="text-xl font-bold text-white">USDT Token</h3>
               <p className="text-sm text-dark-textMuted">Stablecoin Borrowed</p>
             </div>
           </div>
@@ -50,7 +50,7 @@ const GMFOTCard: React.FC<GMFOTCardProps> = ({
             <p className="text-xs text-dark-textMuted mb-1">Current Debt</p>
             <p className="text-lg font-bold text-white">{formatCurrency(currentDebt)}</p>
             <p className="text-xs text-dark-textMuted mt-0.5">
-              {formatNumber(currentDebt)} GMFOT
+              {formatNumber(currentDebt)} USDT
             </p>
           </div>
 
@@ -58,7 +58,7 @@ const GMFOTCard: React.FC<GMFOTCardProps> = ({
             <p className="text-xs text-dark-textMuted mb-1">Total Borrowed</p>
             <p className="text-lg font-bold text-success-400">{formatCurrency(totalBorrowed)}</p>
             <p className="text-xs text-dark-textMuted mt-0.5">
-              {formatNumber(totalBorrowed)} GMFOT
+              {formatNumber(totalBorrowed)} USDT
             </p>
           </div>
 
@@ -66,7 +66,7 @@ const GMFOTCard: React.FC<GMFOTCardProps> = ({
             <p className="text-xs text-dark-textMuted mb-1">Total Repaid</p>
             <p className="text-lg font-bold text-warning-400">{formatCurrency(totalRepaid)}</p>
             <p className="text-xs text-dark-textMuted mt-0.5">
-              {formatNumber(totalRepaid)} GMFOT
+              {formatNumber(totalRepaid)} USDT
             </p>
           </div>
         </div>
@@ -76,7 +76,7 @@ const GMFOTCard: React.FC<GMFOTCardProps> = ({
           <TrendingUp className="w-4 h-4 text-primary-400 flex-shrink-0 mt-0.5" />
           <div className="text-xs text-primary-300">
             <p className="font-semibold mb-1">How It Works</p>
-            <p>Deposit collateral (WETH) on any supported network, then borrow GMFOT stablecoins at {interestRate}% annual interest rate.</p>
+            <p>Deposit collateral (ETH) on any supported network, then borrow USDT stablecoins at {interestRate}% annual interest rate.</p>
           </div>
         </div>
 
@@ -107,4 +107,4 @@ const GMFOTCard: React.FC<GMFOTCardProps> = ({
   );
 };
 
-export default GMFOTCard;
+export default USDTCard;

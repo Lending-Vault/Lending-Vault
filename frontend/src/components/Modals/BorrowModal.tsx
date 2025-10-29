@@ -51,14 +51,17 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
     setAmount(maxBorrowAmount.toString());
   };
 
-  const handleBorrow = () => {
+  const handleBorrow = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      onBorrow?.(borrowAmount);
-      onClose();
+    try {
+      await onBorrow?.(borrowAmount);
+      // Don't close modal immediately - let Dashboard handle it after transaction confirms
       setAmount('');
-    }, 2000);
+    } catch (error) {
+      console.error('Borrow error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDiagnostics = async () => {
@@ -76,7 +79,7 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Borrow GMFOT">
+    <Modal isOpen={isOpen} onClose={onClose} title="Borrow USDT">
       <div className="space-y-6">
         
         {/* Amount Input */}
@@ -88,7 +91,7 @@ const BorrowModal: React.FC<BorrowModalProps> = ({
           type="number"
           maxButton
           onMaxClick={handleMaxClick}
-          suffix="GMFOT"
+          suffix="USDT"
           error={borrowAmount > maxBorrowAmount ? `Maximum borrow: $${maxBorrowAmount.toLocaleString()}` : undefined}
         />
 

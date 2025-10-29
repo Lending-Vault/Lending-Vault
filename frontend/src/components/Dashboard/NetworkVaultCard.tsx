@@ -82,7 +82,7 @@ const NetworkVaultCard: React.FC<NetworkVaultCardProps> = ({
             <div className="bg-dark-card/50 rounded-lg p-3 sm:p-4 border border-dark-border">
               <p className="text-xs sm:text-sm text-dark-textMuted mb-1">Total Debt</p>
               <p className="text-lg sm:text-2xl font-bold text-dark-text mobile-text-base">
-                {parseFloat(data.debt).toFixed(4)} GMFOT
+                {parseFloat(data.debt).toFixed(4)} USDT
               </p>
               <p className="text-xs sm:text-sm text-dark-textMuted mt-1 mobile-text-xs">
                 ${parseFloat(data.debt).toFixed(2)}

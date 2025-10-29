@@ -19,6 +19,7 @@ export interface Transaction {
   txHash: string;
   fullTxHash?: string; // Full transaction hash for block explorer
   blockNumber?: bigint; // Block number for sorting
+  timestamp?: number; // Unix timestamp in milliseconds for accurate sorting
   network?: 'Lisk Sepolia' | 'Ethereum Sepolia'; // Network name
   chainId?: number; // Chain ID (4202 for Lisk, 11155111 for Ethereum)
 }

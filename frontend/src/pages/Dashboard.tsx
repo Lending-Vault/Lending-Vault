@@ -6,7 +6,7 @@ import { formatUnits } from 'viem';
 import Header from '../components/Layout/Header';
 import BottomNav from '../components/Layout/BottomNav';
 import NetworkVaultCard from '../components/Dashboard/NetworkVaultCard';
-import GMFOTCard from '../components/Dashboard/GMFOTCard';
+import USDTCard from '../components/Dashboard/GMFOTCard';
 import TransactionHistory from '../components/Dashboard/TransactionHistory';
 import DepositModal from '../components/Modals/DepositModal';
 import BorrowModal from '../components/Modals/BorrowModal';
@@ -65,10 +65,10 @@ const Dashboard: React.FC = () => {
   const { lisk, ethereum, refetchAll } = useMultiNetworkVault();
 
   // Transaction actions
-  const { depositETH, isSuccess: isDepositSuccess } = useDepositETH();
-  const { borrow, isSuccess: isBorrowSuccess } = useBorrow();
-  const { repay, isSuccess: isRepaySuccess } = useRepay();
-  const { withdrawETH, isSuccess: isWithdrawSuccess } = useWithdrawETH();
+  const { depositETH, isSuccess: isDepositSuccess, hash: depositHash } = useDepositETH();
+  const { borrow, isSuccess: isBorrowSuccess, hash: borrowHash } = useBorrow();
+  const { repay, isSuccess: isRepaySuccess, hash: repayHash } = useRepay();
+  const { withdrawETH, isSuccess: isWithdrawSuccess, hash: withdrawHash } = useWithdrawETH();
 
   // Get ETH price from oracle - use WETH address for price feed since NATIVE_ETH is just an internal address
   const { price: ethPrice } = useTokenPrice(
@@ -78,15 +78,38 @@ const Dashboard: React.FC = () => {
   );
 
   // Get transaction history from BOTH networks
-  const { transactions, isLoading: txLoading, refetch: refetchTransactions } = useMultiNetworkTransactionHistory();
+  const {
+    transactions,
+    isLoading: txLoading,
+    refetch: refetchTransactions,
+    addPendingTransaction,
+    confirmTransaction,
+  } = useMultiNetworkTransactionHistory();
 
-  // Refetch vault data when transactions succeed
+  // Refetch vault data when transactions succeed and close modals
   useEffect(() => {
     if (isDepositSuccess || isBorrowSuccess || isRepaySuccess || isWithdrawSuccess) {
       refetchAll();
       refetchTransactions();
+      
+      // Confirm transactions in our state
+      if (isDepositSuccess && depositHash) {
+        confirmTransaction(depositHash, BigInt(0)); // We don't have block number here, use 0 as placeholder
+      }
+      if (isBorrowSuccess && borrowHash) {
+        confirmTransaction(borrowHash, BigInt(0)); // We don't have block number here, use 0 as placeholder
+      }
+      if (isRepaySuccess && repayHash) {
+        confirmTransaction(repayHash, BigInt(0)); // We don't have block number here, use 0 as placeholder
+      }
+      if (isWithdrawSuccess && withdrawHash) {
+        confirmTransaction(withdrawHash, BigInt(0)); // We don't have block number here, use 0 as placeholder
+      }
+      
+      // Close modal after successful transaction
+      setOpenModal(null);
     }
-  }, [isDepositSuccess, isBorrowSuccess, isRepaySuccess, isWithdrawSuccess, refetchAll, refetchTransactions]);
+  }, [isDepositSuccess, isBorrowSuccess, isRepaySuccess, isWithdrawSuccess, refetchAll, refetchTransactions, depositHash, borrowHash, repayHash, withdrawHash, confirmTransaction]);
 
   // Calculate USD values for ETH (main collateral)
   const ethPriceNum = ethPrice && typeof ethPrice === 'bigint'
@@ -94,9 +117,9 @@ const Dashboard: React.FC = () => {
 
   // Calculate total collateral and debt across all networks
   const totalCollateralETH = parseFloat(lisk.collateral) + parseFloat(ethereum.collateral);
-  const totalDebtGMFOT = parseFloat(lisk.debt) + parseFloat(ethereum.debt);
+  const totalDebtUSD = parseFloat(lisk.debt) + parseFloat(ethereum.debt);
   const collateralBalance = totalCollateralETH * ethPriceNum;
-  const debtBalance = totalDebtGMFOT; // Assuming GMFOT is $1
+  const debtBalance = totalDebtUSD; // Assuming USDT is $1
 
   // Calculate average health factor (weighted by collateral)
   const liskWeight = parseFloat(lisk.collateral) / totalCollateralETH || 0;
@@ -105,7 +128,7 @@ const Dashboard: React.FC = () => {
   const ethHF = parseFloat(ethereum.healthFactor);
 
   const healthFactorValue = (() => {
-    if (totalDebtGMFOT === 0) return 999; // Infinite health if no debt
+    if (totalDebtUSD === 0) return 999; // Infinite health if no debt
     if (liskWeight > 0 && ethWeight > 0) {
       // Weighted average if both networks have collateral
       return (liskHF * liskWeight + ethHF * ethWeight) * 100;
@@ -175,7 +198,7 @@ const Dashboard: React.FC = () => {
     
     return {
       currentDebt: debt,
-      debtToken: "GMFOT",
+      debtToken: "USDT",
       interestRate: 8,
       borrowDate: borrowDate,
     };
@@ -199,8 +222,14 @@ const Dashboard: React.FC = () => {
         throw new Error('VaultManager address not found. Please check your network connection.');
       }
 
-      const result = await depositETH(amount.toString());
-      console.log('✅ Deposit transaction submitted:', result);
+      await depositETH(amount.toString());
+      console.log('✅ Deposit transaction submitted');
+      
+      // Add to transaction history immediately using the hash from the hook
+      if (depositHash && chainId) {
+        const networkName = chainId === 4202 ? 'Lisk Sepolia' : 'Ethereum Sepolia';
+        addPendingTransaction(depositHash, 'Deposit', `${amount} ETH`, chainId, networkName);
+      }
 
     } catch (error: any) {
       console.error('❌ Deposit error:', {
@@ -268,17 +297,24 @@ const Dashboard: React.FC = () => {
       console.log('Pre-check passed:', successMessage);
 
       // Show user feedback
-      alert(`Submitting borrow transaction for ${amount} GMFOT. Please confirm in MetaMask and wait for confirmation...`);
+      alert(`Submitting borrow transaction for ${amount} USDT. Please confirm in MetaMask and wait for confirmation...`);
 
-      const txHash = await borrow(
+      await borrow(
         NATIVE_ETH as `0x${string}`,
         contractAddresses.GMFOTToken as `0x${string}`,
         amount.toString(),
         18
       );
 
-      console.log('Borrow transaction submitted:', txHash);
-      alert(`Borrow transaction submitted! Hash: ${txHash}. Waiting for confirmation...`);
+      console.log('Borrow transaction submitted');
+      
+      // Add to transaction history immediately using the hash from the hook
+      if (borrowHash && chainId) {
+        const networkName = chainId === 4202 ? 'Lisk Sepolia' : 'Ethereum Sepolia';
+        addPendingTransaction(borrowHash, 'Borrow', `${amount} USDT`, chainId, networkName);
+      }
+      
+      alert(`Borrow transaction submitted! Hash: ${borrowHash}. Waiting for confirmation...`);
 
     } catch (error: any) {
       console.error('Borrow error:', {
@@ -315,7 +351,7 @@ const Dashboard: React.FC = () => {
   const handleRepay = async (amount: number) => {
     try {
       if (!contractAddresses?.GMFOTToken) {
-        console.error('GMFOTToken address not found for current network');
+        console.error('USDTToken address not found for current network');
         return;
       }
       console.log('Repay:', amount);
@@ -324,6 +360,12 @@ const Dashboard: React.FC = () => {
         amount.toString(),
         18
       );
+      
+      // Add to transaction history immediately using the hash from hook
+      if (repayHash && chainId) {
+        const networkName = chainId === 4202 ? 'Lisk Sepolia' : 'Ethereum Sepolia';
+        addPendingTransaction(repayHash, 'Repay', `${amount} USDT`, chainId, networkName);
+      }
     } catch (error) {
       console.error('Repay error:', error);
     }
@@ -333,6 +375,12 @@ const Dashboard: React.FC = () => {
     try {
       console.log('Withdraw ETH:', amount);
       await withdrawETH(amount.toString());
+      
+      // Add to transaction history immediately using the hash from hook
+      if (withdrawHash && chainId) {
+        const networkName = chainId === 4202 ? 'Lisk Sepolia' : 'Ethereum Sepolia';
+        addPendingTransaction(withdrawHash, 'Withdraw', `${amount} ETH`, chainId, networkName);
+      }
     } catch (error) {
       console.error('Withdraw error:', error);
     }
@@ -362,7 +410,7 @@ const Dashboard: React.FC = () => {
                   Connect Your Wallet
                 </h2>
                 <p className="text-dark-textMuted mb-4">
-                  Connect your wallet to start depositing collateral and borrow USDT to earn GMFOT stablecoin.
+                  Connect your wallet to start depositing collateral and borrow USDT stablecoin.
                 </p>
                 <div className="bg-dark-bg/50 rounded-lg p-4 text-left space-y-2 text-sm text-dark-textMuted">
                   <p>✓ <span className="text-white font-semibold">No token approvals</span> - deposit native ETH directly</p>
@@ -396,7 +444,7 @@ const Dashboard: React.FC = () => {
             {/* Page Title */}
             <div className="mb-4 sm:mb-6">
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2 mobile-text-base">Your Vaults</h1>
-              <p className="text-sm sm:text-base text-dark-textMuted mobile-text-sm">Deposit native Sepolia ETH as collateral and borrow GMFOT stablecoin across multiple networks</p>
+              <p className="text-sm sm:text-base text-dark-textMuted mobile-text-sm">Deposit native Sepolia ETH as collateral and borrow USDT stablecoin across multiple networks</p>
             </div>
 
             {/* How It Works - Info Banner */}
@@ -414,7 +462,7 @@ const Dashboard: React.FC = () => {
                       <span className="font-semibold text-lisk-400">1. Deposit Collateral:</span> Deposit native Sepolia ETH directly from your wallet (no token approval needed!)
                     </p>
                     <p>
-                      <span className="font-semibold text-lisk-400">2. Borrow USDT:</span> Borrow up to 50% of your collateral value in GMFOT stablecoin at 8% APR
+                      <span className="font-semibold text-lisk-400">2. Borrow USDT:</span> Borrow up to 50% of your collateral value in USDT stablecoin at 8% APR
                     </p>
                     <p>
                       <span className="font-semibold text-lisk-400">3. Maintain Health:</span> Keep your Health Factor above 150% to avoid liquidation
@@ -450,7 +498,7 @@ const Dashboard: React.FC = () => {
                   <p className="text-xs text-dark-textMuted mb-1">Total Debt</p>
                   <p className="text-xl font-bold text-warning-400">{formatCurrency(debtBalance)}</p>
                   <div className="hidden group-hover:block absolute z-10 bottom-full mb-2 w-48 p-2 bg-dark-card border border-dark-border rounded-lg shadow-lg text-xs text-dark-textMuted">
-                    Amount of GMFOT you've borrowed (accrues 8% APR interest)
+                    Amount of USDT you've borrowed (accrues 8% APR interest)
                   </div>
                 </div>
                 <div className="group relative">
@@ -493,9 +541,9 @@ const Dashboard: React.FC = () => {
               />
             </div>
 
-            {/* GMFOT Token Card */}
+            {/* USDT Token Card */}
             <div className="mb-6 sm:mb-8">
-              <GMFOTCard
+              <USDTCard
                 totalBorrowed={debtBalance}
                 totalRepaid={0}
                 currentDebt={debtBalance}

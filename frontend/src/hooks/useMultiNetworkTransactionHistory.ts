@@ -5,6 +5,7 @@ import { formatUnits, type Log, createPublicClient, http, type PublicClient } fr
 import { getContractAddresses } from '../config/contracts';
 import { liskSepolia, sepolia } from 'wagmi/chains';
 import type { Transaction } from '../types';
+import { useTransactionState } from './useTransactionState';
 
 interface TransactionHistoryOptions {
   fromBlock?: bigint;
@@ -13,6 +14,7 @@ interface TransactionHistoryOptions {
 
 export function useMultiNetworkTransactionHistory(options: TransactionHistoryOptions = {}) {
   const { address } = useAccount();
+  const transactionState = useTransactionState();
 
   const liskClient = useMemo(
     () =>
@@ -35,7 +37,7 @@ export function useMultiNetworkTransactionHistory(options: TransactionHistoryOpt
     [ethRpcUrl]
   );
 
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [fetchedTransactions, setFetchedTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [shouldRefetch, setShouldRefetch] = useState(0);
@@ -44,9 +46,14 @@ export function useMultiNetworkTransactionHistory(options: TransactionHistoryOpt
 
   const refetch = useCallback(() => setShouldRefetch(prev => prev + 1), []);
 
+  // Merge state transactions with fetched transactions
+  const transactions = useMemo(() => {
+    return transactionState.mergeWithFetchedTransactions(fetchedTransactions).slice(0, maxTransactions);
+  }, [transactionState, fetchedTransactions, maxTransactions]);
+
   useEffect(() => {
     if (!address) {
-      setTransactions([]);
+      setFetchedTransactions([]);
       return;
     }
 
@@ -63,9 +70,16 @@ export function useMultiNetworkTransactionHistory(options: TransactionHistoryOpt
         const allTxs = [
           ...(liskTxs.status === 'fulfilled' ? liskTxs.value : []),
           ...(ethTxs.status === 'fulfilled' ? ethTxs.value : []),
-        ].sort((a, b) => Number(b.blockNumber || 0) - Number(a.blockNumber || 0));
+        ].sort((a, b) => {
+          // Use timestamp if available, otherwise fall back to block number
+          const timestampA = a.timestamp || Number(a.blockNumber || 0);
+          const timestampB = b.timestamp || Number(b.blockNumber || 0);
+          
+          // Sort by timestamp (newest first)
+          return timestampB - timestampA;
+        });
 
-        setTransactions(allTxs.slice(0, maxTransactions));
+        setFetchedTransactions(allTxs);
       } catch (err) {
         console.error('Transaction fetch failed:', err);
         setError(err instanceof Error ? err : new Error('Unknown error'));
@@ -77,7 +91,15 @@ export function useMultiNetworkTransactionHistory(options: TransactionHistoryOpt
     fetchAllTransactions();
   }, [address, fromBlock, maxTransactions, shouldRefetch, liskClient, ethClient, ethRpcUrl]);
 
-  return { transactions, isLoading, error, refetch };
+  return {
+    transactions,
+    isLoading,
+    error,
+    refetch,
+    addPendingTransaction: transactionState.addPendingTransaction,
+    confirmTransaction: transactionState.confirmTransaction,
+    removeTransaction: transactionState.removeTransaction,
+  };
 }
 
 // Deployment blocks (VaultManager deployed)
@@ -161,6 +183,13 @@ async function fetchNetworkTransactions(
         
         while (retryCount < maxRetries && !chunkSuccess) {
           try {
+            // Add delay between chunks to avoid rate limiting
+            if (i > 0) {
+              const delayMs = 1000 * i; // Increasing delay for each chunk
+              console.log(`Delaying ${delayMs}ms before fetching chunk ${i + 1}...`);
+              await new Promise(resolve => setTimeout(resolve, delayMs));
+            }
+            
             const chunkLogs = await Promise.all(
               events.map(e =>
                 publicClient.getLogs({
@@ -260,7 +289,7 @@ async function processLog(
     const formattedAmount = formatUnits(amount, 18);
     const tokenAddress = log.topics[2]?.toLowerCase();
     const isNativeETH = tokenAddress?.includes('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
-    const tokenSymbol = isNativeETH ? 'ETH' : 'GMFOT';
+    const tokenSymbol = isNativeETH ? 'ETH' : 'USDT';
 
     const block = await publicClient.getBlock({ blockNumber: log.blockNumber });
     const timestamp = Number(block.timestamp) * 1000;
@@ -281,6 +310,7 @@ async function processLog(
       txHash: `${log.transactionHash.slice(0, 6)}...${log.transactionHash.slice(-4)}`,
       fullTxHash: log.transactionHash,
       blockNumber: log.blockNumber,
+      timestamp, // Add the timestamp for accurate sorting
       network: networkName as 'Lisk Sepolia' | 'Ethereum Sepolia',
       chainId,
     };

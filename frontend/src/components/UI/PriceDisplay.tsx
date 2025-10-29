@@ -27,9 +27,9 @@ const PriceDisplay: React.FC<PriceDisplayProps> = ({ className = '' }) => {
         }
       }
 
-      // Add GMFOT as a stablecoin (pegged to USD)
+      // Add USDT as a stablecoin (pegged to USD)
       priceData.push({
-        symbol: 'GMFOT',
+        symbol: 'USDT',
         price: 1.0,
         timestamp: Date.now(),
       });
@@ -55,7 +55,7 @@ const PriceDisplay: React.FC<PriceDisplayProps> = ({ className = '' }) => {
         return 'text-blue-400';
       case 'USDT':
         return 'text-green-400';
-      case 'GMFOT':
+      case 'USDT':
         return 'text-purple-400';
       default:
         return 'text-gray-400';

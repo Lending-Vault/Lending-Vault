@@ -76,3 +76,8 @@ export {
   useMultiNetworkTransactionHistory,
   getBlockExplorerUrl as getMultiNetworkBlockExplorerUrl,
 } from './useMultiNetworkTransactionHistory';
+
+// Transaction State Management Hook
+export {
+  useTransactionState,
+} from './useTransactionState';
