@@ -70,8 +70,12 @@ const Dashboard: React.FC = () => {
   const { repay, isSuccess: isRepaySuccess } = useRepay();
   const { withdrawETH, isSuccess: isWithdrawSuccess } = useWithdrawETH();
 
-  // Get ETH price from oracle
-  const { price: ethPrice } = useTokenPrice(NATIVE_ETH as `0x${string}`);
+  // Get ETH price from oracle - use WETH address for price feed since NATIVE_ETH is just an internal address
+  const { price: ethPrice } = useTokenPrice(
+    chainId === 11155111
+      ? '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14' as `0x${string}` // Ethereum Sepolia WETH
+      : '0x0E390Cd137377f34bf178153d2eCBc8369e7586D' as `0x${string}` // Lisk Sepolia MockWETH
+  );
 
   // Get transaction history from BOTH networks
   const { transactions, isLoading: txLoading, refetch: refetchTransactions } = useMultiNetworkTransactionHistory();
