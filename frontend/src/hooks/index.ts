@@ -60,6 +60,11 @@ export {
   type LockPeriodType,
 } from './useSavingsVault';
 
+// Gas Estimation Hooks
+export {
+  useGasEstimate,
+} from './useGasEstimate';
+
 // Transaction History Hooks
 export {
   useTransactionHistory,

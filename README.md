@@ -121,9 +121,6 @@ Lending-Vault/
 - **Wagmi**: React hooks for Ethereum
 - **RainbowKit**: Wallet connection library
 
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
 ## 📜 License
 

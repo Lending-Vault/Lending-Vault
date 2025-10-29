@@ -5,7 +5,7 @@ import Modal from '../UI/Modal';
 import Input from '../UI/Input';
 import Button from '../UI/Button';
 import InfoBox from '../UI/InfoBox';
-import { useNativeBalance } from '../../hooks';
+import { useNativeBalance, useGasEstimate } from '../../hooks';
 import { formatUnits } from 'viem';
 
 interface DepositModalProps {
@@ -31,6 +31,10 @@ const DepositModal: React.FC<DepositModalProps> = ({
 
   // Get user's native ETH balance
   const { balance, refetch: refetchBalance } = useNativeBalance();
+  
+  // Use gas estimation hook
+  const { getDepositGasEstimate } = useGasEstimate();
+  const estimatedGasUSD = getDepositGasEstimate();
 
   const depositAmount = parseFloat(amount) || 0;
   const depositValue = depositAmount * tokenPrice;
@@ -103,7 +107,9 @@ const DepositModal: React.FC<DepositModalProps> = ({
         <div className="bg-dark-bg border border-dark-border rounded-lg p-4">
           <div className="flex justify-between items-center">
             <span className="text-sm text-dark-textMuted">Estimated Gas Fee</span>
-            <span className="text-sm font-semibold text-white">~$5.00</span>
+            <span className="text-sm font-semibold text-white">
+              {estimatedGasUSD ? `~$${estimatedGasUSD.toFixed(2)}` : 'Loading...'}
+            </span>
           </div>
         </div>
 

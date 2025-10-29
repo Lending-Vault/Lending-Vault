@@ -23,13 +23,16 @@ export function useMultiNetworkTransactionHistory(options: TransactionHistoryOpt
     []
   );
 
+  const ethRpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL || sepolia.rpcUrls.default.http[0];
+  const isDrpc = ethRpcUrl.includes('drpc.org');
+  
   const ethClient = useMemo(
     () =>
       createPublicClient({
         chain: sepolia,
-        transport: http(import.meta.env.VITE_SEPOLIA_RPC_URL || sepolia.rpcUrls.default.http[0]),
+        transport: http(ethRpcUrl),
       }) as PublicClient,
-    []
+    [ethRpcUrl]
   );
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -53,8 +56,8 @@ export function useMultiNetworkTransactionHistory(options: TransactionHistoryOpt
 
       try {
         const [liskTxs, ethTxs] = await Promise.allSettled([
-          fetchNetworkTransactions(liskClient, liskSepolia.id, 'Lisk Sepolia', address, fromBlock),
-          fetchNetworkTransactions(ethClient, sepolia.id, 'Ethereum Sepolia', address, fromBlock),
+          fetchNetworkTransactions(liskClient, liskSepolia.id, 'Lisk Sepolia', address, fromBlock, false),
+          fetchNetworkTransactions(ethClient, sepolia.id, 'Ethereum Sepolia', address, fromBlock, isDrpc),
         ]);
 
         const allTxs = [
@@ -72,7 +75,7 @@ export function useMultiNetworkTransactionHistory(options: TransactionHistoryOpt
     };
 
     fetchAllTransactions();
-  }, [address, fromBlock, maxTransactions, shouldRefetch, liskClient, ethClient]);
+  }, [address, fromBlock, maxTransactions, shouldRefetch, liskClient, ethClient, ethRpcUrl]);
 
   return { transactions, isLoading, error, refetch };
 }
@@ -88,7 +91,8 @@ async function fetchNetworkTransactions(
   chainId: number,
   networkName: string,
   userAddress: `0x${string}`,
-  fromBlock: bigint
+  fromBlock: bigint,
+  isDrpc: boolean
 ): Promise<Transaction[]> {
   try {
     const contractAddresses = getContractAddresses(chainId);
@@ -107,8 +111,8 @@ async function fetchNetworkTransactions(
 
     // Maximum block range per request
     // Lisk Sepolia: 100,000 blocks
-    // Ethereum Sepolia (PublicNode): 50,000 blocks (much more generous than Alchemy's 10 block limit)
-    const MAX_BLOCK_RANGE = chainId === 4202 ? 100000n : 50000n; // Use 50,000 for Ethereum Sepolia with PublicNode
+    // Ethereum Sepolia: 10,000 blocks for drpc.org free tier, 50,000 for other providers
+    const MAX_BLOCK_RANGE = chainId === 4202 ? 100000n : (isDrpc ? 10000n : 50000n);
     
     // Check if we need to chunk the request
     const totalBlockRange = latestBlock - startBlock;
